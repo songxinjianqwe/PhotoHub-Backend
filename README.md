@@ -1,208 +1,71 @@
-Yii 2 Basic Project Template
-============================
+## PHP环境安装
+1. 下载PHP7和Apache
+2. Apache做一定配置，并加入到系统服务，最后启动
+访问http://localhost:port即可访问
+比如设置端口号为8088
+http://localhost:8088/
+这个会映射到Apache目录下的htdocs
+我们自己的项目也会放到该目录下
+3. 在PHPStorm中配置php和apache
+Language:php 设置php7和php.exe
+4. 新建项目
+Build:Deployment 设置apache的环境
+![image](http://markdown-1252651195.cossh.myqcloud.com/%E5%9B%BE%E5%83%8F%201.png)
+![image](http://markdown-1252651195.cossh.myqcloud.com/%E5%9B%BE%E5%83%8F%202.png)
+5. 在项目上右键上传至localhost
+可以在Tools->Deployment->Automatic Upload
+6. 在浏览器中打开http://localhost:port/项目名/index.html
+访问时不需要在PhpStorm中点击任何东西，PhpStorm相当于一个编辑器而非运行环境，
+php代码实际运行在Apache中，因此要保证Apache开机启动且始终运行（Windows 服务保证）。
 
-Yii 2 Basic Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
-rapidly creating small projects.
+比如当前项目名为YiiRestSkeleton，在浏览器中访问http://localhost:8088/YiiRestSkeleton
+该文件会映射到Apache目录/htdocs/YiiRestSkeleton/index.html
+7. 如果希望在phpStorm中打开网页，而非跑到浏览器里打开的话，需要配置右上角的运行环境。
+![image](http://markdown-1252651195.cossh.myqcloud.com/%E5%9B%BE%E5%83%8F%203.png)
+中途需要添加server，server的端口需要和apache端口一致
+此时点击绿色的Run按钮直接会打开http://localhost:8088/YiiRestSkeleton/
+8. 参考
+> http://www.cnblogs.com/wangqishu/p/5028031.html
+> http://blog.csdn.net/u012861467/article/details/54692236
 
-The template contains the basic features including user login/logout and a contact page.
-It includes all commonly used configurations that would allow you to focus on adding new
-features to your application.
+- 注意php和apache的版本要对应
+- 修改apache的ServerRoot、DocumentRoot、PHPIniDir、 LoadModule php7_modul、php的minetype、ServerName和端口号
+- 修改php的php.ini和extension_dir 
+- 需要将apache加入windows服务
+- 通过访问http://localhost:8088/测试是否正常启动
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-app-basic/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-app-basic/downloads.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Build Status](https://travis-ci.org/yiisoft/yii2-app-basic.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-app-basic)
+## Yii环境配置
+1. 下载安装Composer
+> https://getcomposer.org/Composer-Setup.exe
+2. 在命令行中输入
+composer self-update 
+composer global require "fxp/composer-asset-plugin:^1.3.1"
+composer create-project --prefer-dist yiisoft/yii2-app-basic project_dir
+3.启动内置服务器：php yii serve --port=8080
+访问：http://localhost:8080/
 
-DIRECTORY STRUCTURE
--------------------
+## Yii开发
 
-      assets/             contains assets definition
-      commands/           contains console commands (controllers)
-      config/             contains application configurations
-      controllers/        contains Web controller classes
-      mail/               contains view files for e-mails
-      models/             contains model classes
-      runtime/            contains files generated during runtime
-      tests/              contains various tests for the basic application
-      vendor/             contains dependent 3rd-party packages
-      views/              contains view files for the Web application
-      web/                contains the entry script and Web resources
-
-
-
-REQUIREMENTS
-------------
-
-The minimum requirement by this project template that your Web server supports PHP 5.4.0.
-
-
-INSTALLATION
-------------
-
-### Install via Composer
-
-If you do not have [Composer](http://getcomposer.org/), you may install it by following the instructions
-at [getcomposer.org](http://getcomposer.org/doc/00-intro.md#installation-nix).
-
-You can then install this project template using the following command:
-
-~~~
-php composer.phar global require "fxp/composer-asset-plugin:^1.3.1"
-php composer.phar create-project --prefer-dist --stability=dev yiisoft/yii2-app-basic basic
-~~~
-
-Now you should be able to access the application through the following URL, assuming `basic` is the directory
-directly under the Web root.
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-### Install from an Archive File
-
-Extract the archive file downloaded from [yiiframework.com](http://www.yiiframework.com/download/) to
-a directory named `basic` that is directly under the Web root.
-
-Set cookie validation key in `config/web.php` file to some random secret string:
-
-```php
-'request' => [
-    // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-    'cookieValidationKey' => '<secret random string goes here>',
-],
-```
-
-You can then access the application through the following URL:
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-CONFIGURATION
--------------
-
-### Database
-
-Edit the file `config/db.php` with real data, for example:
-
-```php
-return [
-    'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '1234',
-    'charset' => 'utf8',
-];
-```
-
-**NOTES:**
-- Yii won't create the database for you, this has to be done manually before you can access it.
-- Check and edit the other files in the `config/` directory to customize your application as required.
-- Refer to the README in the `tests` directory for information specific to basic application tests.
-
-
-
-TESTING
--------
-
-Tests are located in `tests` directory. They are developed with [Codeception PHP Testing Framework](http://codeception.com/).
-By default there are 3 test suites:
-
-- `unit`
-- `functional`
-- `acceptance`
-
-Tests can be executed by running
-
-```
-vendor/bin/codecept run
-``` 
-
-The command above will execute unit and functional tests. Unit tests are testing the system components, while functional
-tests are for testing user interaction. Acceptance tests are disabled by default as they require additional setup since
-they perform testing in real browser. 
-
-
-### Running  acceptance tests
-
-To execute acceptance tests do the following:  
-
-1. Rename `tests/acceptance.suite.yml.example` to `tests/acceptance.suite.yml` to enable suite configuration
-
-2. Replace `codeception/base` package in `composer.json` with `codeception/codeception` to install full featured
-   version of Codeception
-
-3. Update dependencies with Composer 
-
-    ```
-    composer update  
-    ```
-
-4. Download [Selenium Server](http://www.seleniumhq.org/download/) and launch it:
-
-    ```
-    java -jar ~/selenium-server-standalone-x.xx.x.jar
-    ```
-
-    In case of using Selenium Server 3.0 with Firefox browser since v48 or Google Chrome since v53 you must download [GeckoDriver](https://github.com/mozilla/geckodriver/releases) or [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) and launch Selenium with it:
-
-    ```
-    # for Firefox
-    java -jar -Dwebdriver.gecko.driver=~/geckodriver ~/selenium-server-standalone-3.xx.x.jar
+### 应用结构
+basic/                  应用根目录
+    composer.json       Composer 配置文件, 描述包信息
+    config/             包含应用配置及其它配置
+        console.php     控制台应用配置信息
+        web.php         Web 应用配置信息
+    commands/           包含控制台命令类
+    controllers/        包含控制器类
+    models/             包含模型类
+    runtime/            包含 Yii 在运行时生成的文件，例如日志和缓存文件
+    vendor/             包含已经安装的 Composer 包，包括 Yii 框架自身
+    views/              包含视图文件
+    web/                Web 应用根目录，包含 Web 入口文件
+        assets/         包含 Yii 发布的资源文件（javascript 和 css）
+        index.php       应用入口文件
+    yii                 Yii 控制台命令执行脚本
+### 开发注意
+修改web.php中的两处配置
+删除mail和test目录
     
-    # for Google Chrome
-    java -jar -Dwebdriver.chrome.driver=~/chromedriver ~/selenium-server-standalone-3.xx.x.jar
-    ``` 
-    
-    As an alternative way you can use already configured Docker container with older versions of Selenium and Firefox:
-    
-    ```
-    docker run --net=host selenium/standalone-firefox:2.53.0
-    ```
-
-5. (Optional) Create `yii2_basic_tests` database and update it by applying migrations if you have them.
-
-   ```
-   tests/bin/yii migrate
-   ```
-
-   The database configuration can be found at `config/test_db.php`.
 
 
-6. Start web server:
 
-    ```
-    tests/bin/yii serve
-    ```
-
-7. Now you can run all available tests
-
-   ```
-   # run all available tests
-   vendor/bin/codecept run
-
-   # run acceptance tests
-   vendor/bin/codecept run acceptance
-
-   # run only unit and functional tests
-   vendor/bin/codecept run unit,functional
-   ```
-
-### Code coverage support
-
-By default, code coverage is disabled in `codeception.yml` configuration file, you should uncomment needed rows to be able
-to collect code coverage. You can run your tests and collect coverage with the following command:
-
-```
-#collect coverage for all tests
-vendor/bin/codecept run -- --coverage-html --coverage-xml
-
-#collect coverage only for unit tests
-vendor/bin/codecept run unit -- --coverage-html --coverage-xml
-
-#collect coverage for unit and functional tests
-vendor/bin/codecept run functional,unit -- --coverage-html --coverage-xml
-```
-
-You can see code coverage output under the `tests/_output` directory.
