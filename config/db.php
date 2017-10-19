@@ -2,8 +2,6 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '',
+    'dsn' => 'sqlite:D:\DevelopmentTools\sqlite\db\photohub.db',
     'charset' => 'utf8',
 ];
