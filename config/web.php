@@ -9,22 +9,35 @@ $config = [
     'bootstrap' => ['log'],
     'components' => [
         'request' => [
-            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => 'uQbIl59G221rLvNvAYhc_Z2yB5JrhA5b',
+            'enableCookieValidation' => false,
             //Rest专用
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
+                'text/json' => 'yii\web\JsonParser',
             ]
         ],
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
+        //全局的日期格式化
+        'formatter' => [
+            'dateFormat' => 'yyyy-MM-dd',
+            'datetimeFormat' => 'yyyy-MM-dd HH:mm:ss',
         ],
+        'cache' => [
+            'class' => 'yii\redis\Cache',
+        ],
+        //Redis配置
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+            'hostname' => 'localhost',
+            'port' => 6379,
+            'database' => 0,
+        ],
+        //权限相关        
         'user' => [
             'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
-        ],
-        'errorHandler' => [
-            'errorAction' => 'site/error',
+            'enableSession' => false,
+            'enableAutoLogin' => false,
+            'enableSession' => false,
+            'loginUrl' => ''
         ],
         //Rest专用        
         'urlManager' => [
@@ -32,24 +45,33 @@ $config = [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'user'],
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'book'],
+                //当启用urlManager时，defaultRoute失效，必须按照下一行的方式才能设置访问/时对应的Controller
+                '' => 'book',
+                //给出直接的映射，即使不是ActiveController也可以访问到
+                'POST tokens' => 'token/login',
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book']],
             ],
         ],
+        //日志
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'exportInterval' => 1,
+                    'levels' => YII_DEBUG ? ['error', 'warning', 'trace', 'info'] : ['error'],
+                    'logVars' => ['$_GET', '$_POST', '$_SERVER'],
+                    'except' => ['yii\web\UrlManager::parseRequest']
                 ],
             ],
         ],
+        //数据库
         'db' => $db,
     ],
     'params' => $params,
 ];
 
+//如果是DEBUG，那么会加入debug模块和gii模块
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';

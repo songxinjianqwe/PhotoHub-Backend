@@ -5,12 +5,12 @@
  * Date: 2017/10/19
  * Time: 15:09
  */
+
 namespace app\controllers;
 
-use yii\rest\ActiveController;
+use app\controllers\base\BaseActiveController;
 
-class BookController extends ActiveController
-{
+class BookController extends BaseActiveController {
     public $modelClass = 'app\models\Book';
+    //index -> /books
 }
-?>

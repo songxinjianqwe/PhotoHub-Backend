@@ -14,13 +14,9 @@ use yii\db\ActiveRecord;
  * Class Book
  * @package app\models
  */
-class Book extends ActiveRecord
-{
+class Book extends ActiveRecord {
 
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'book';
     }
 }
-
-?>
