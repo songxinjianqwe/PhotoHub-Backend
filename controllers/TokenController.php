@@ -90,4 +90,9 @@ class TokenController extends Controller {
         //验证成功
         return new LoginResult($user->id,$user->username,$this->tokenManager->createToken($user->username));
     }
+    
+    public function actionLogout(){
+        Yii::info('删除token :'.Yii::$app->user->identity->username);
+        $this->tokenManager->deleteToken(Yii::$app->user->identity->username);
+    }
 }

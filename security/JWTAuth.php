@@ -39,6 +39,7 @@ class JWTAuth extends AuthMethod {
                 $this->handleFailure($response);
             }
             Yii::info('通过Filter!!!');
+            $user->identity = $identity;
             return $identity;
         }
         Yii::info('不含有Authentication请求头，认证失败');

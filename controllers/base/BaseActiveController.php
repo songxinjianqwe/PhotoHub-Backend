@@ -32,8 +32,6 @@ class BaseActiveController extends ActiveController {
         $behaviors['authenticator'] = [
             'class' => JWTAuth::className()
         ];
-        //除了这些action其他都会经过Filter
-//        $behaviors['authenticator']['except'] = [];
         $behaviors['contentNegotiator'] = [
             'class' => ContentNegotiator::className(),
             'formats' => [

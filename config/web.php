@@ -36,7 +36,6 @@ $config = [
             'identityClass' => 'app\models\User',
             'enableSession' => false,
             'enableAutoLogin' => false,
-            'enableSession' => false,
             'loginUrl' => ''
         ],
         //Rest专用        
@@ -45,10 +44,9 @@ $config = [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
-                //当启用urlManager时，defaultRoute失效，必须按照下一行的方式才能设置访问/时对应的Controller
-                '' => 'book',
                 //给出直接的映射，即使不是ActiveController也可以访问到
                 'POST tokens' => 'token/login',
+                'DELETE tokens' => 'token/logout',
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book']],
             ],
         ],
