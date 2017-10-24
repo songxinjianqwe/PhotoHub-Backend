@@ -16,6 +16,12 @@ use yii\rest\ActiveController;
 use yii\web\Response;
 
 class BaseActiveController extends ActiveController {
+    //加这个可以返回分页信息
+    public $serializer = [
+        'class' => 'yii\rest\Serializer',
+        'collectionEnvelope' => 'items',
+    ];
+    
     public function behaviors() {
         $behaviors = parent::behaviors();
         unset($behaviors ['authenticator']);

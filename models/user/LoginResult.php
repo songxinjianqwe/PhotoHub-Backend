@@ -6,7 +6,7 @@
  * Time: 22:04
  */
 
-namespace app\models;
+namespace app\models\user;
 
 
 class LoginResult {

@@ -209,7 +209,6 @@ public function checkAccess($action, $model = null, $params = [])
 }
 checkAccess() 方法默认会被yii\rest\ActiveController默认动作所调用，如果创建新的操作并想执行权限检查， 应在新的动作中明确调用该方法。
 
-
 #### 路由
 在实践中，你通常要用美观的 URL 并采取有优势的 HTTP 动词。 例如，请求 POST /users 意味着访问 user/create 动作。 这可以很容易地通过配置 urlManager 应用程序组件来完成 如下所示：
 
@@ -258,6 +257,12 @@ OPTIONS /users/123: 显示有关末端 /users/123 支持的动词。
         'GET search' => 'search',
     ],
 ]
+
+{{ip}}/users?page=1&per-page=3
+注意参数是page和per-page
+
+
+
 #### 格式化响应
 当处理一个 RESTful API 请求时， 一个应用程序通常需要如下步骤 来处理响应格式：
 

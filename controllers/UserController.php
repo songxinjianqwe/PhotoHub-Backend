@@ -10,15 +10,14 @@ namespace app\controllers;
 
 
 use app\controllers\base\BaseActiveController;
-use app\models\User;
+use app\models\user\User;
 use Yii;
-use yii\helpers\ArrayHelper;
+use yii\filters\AccessControl;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 
 class UserController extends BaseActiveController {
-    public $modelClass = 'app\models\User';
-
+    public $modelClass = 'app\models\user\User';
 
     /**
      * 自行添加不需要登录的action
@@ -27,6 +26,19 @@ class UserController extends BaseActiveController {
     public function behaviors() {
         $behaviors = parent::behaviors();
         $behaviors['authenticator']['except'] = ['create'];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => ['index'],
+            'rules' => [
+                [
+                    'actions' => ['index'],
+                    'allow' => true,
+                    'matchCallback' => function ($rule, $action) {
+//                        return 
+                    }
+                ],
+            ],
+        ];
         return $behaviors;
     }
 
@@ -36,7 +48,6 @@ class UserController extends BaseActiveController {
      */
     public function actions() {
         $actions = parent::actions();
-        // 禁用""index,delete" 和 "create" 操作  
         unset($actions['create']);
         return $actions;
     }
@@ -44,8 +55,7 @@ class UserController extends BaseActiveController {
     /**
      * 注册
      */
-    public
-    function actionCreate() {
+    public function actionCreate() {
         $user = new User();
         if (!$user->load(['User' => Yii::$app->request->post()], 'User') || !$user->validate()) {
             throw new BadRequestHttpException('注册信息不完整');
@@ -57,7 +67,6 @@ class UserController extends BaseActiveController {
             throw new HttpException(409);
         }
         Yii::info('对密码进行加密');
-        Yii::info(Yii::$app->getSecurity()->generatePasswordHash($user->password));
         $user->password = Yii::$app->getSecurity()->generatePasswordHash($user->password);
         $user->save();
         $user->password = '';

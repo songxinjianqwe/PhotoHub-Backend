@@ -8,9 +8,9 @@
 
 namespace app\controllers;
 
-use app\models\LoginDTO;
-use app\models\LoginResult;
-use app\models\User;
+use app\models\user\LoginDTO;
+use app\models\user\LoginResult;
+use app\models\user\User;
 use app\security\JWTAuth;
 use yii\filters\ContentNegotiator;
 use yii\filters\Cors;
@@ -20,7 +20,6 @@ use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use Yii;
 use yii\web\UnauthorizedHttpException;
-use yii\helpers\Json;
 
 /**
  * 鉴权时会将请求转发到TokenController
@@ -33,7 +32,7 @@ use yii\helpers\Json;
  */
 class TokenController extends Controller {
     private $tokenManager;
-    
+
     public function init() {
         $this->tokenManager = Yii::$container->get('app\security\TokenManager');
     }
@@ -64,14 +63,14 @@ class TokenController extends Controller {
         ];
         return $behaviors;
     }
-    
+
     //没写rules就不能用load()
     //你调用 save()、insert()、update() 这三个方法时，会自动调用yii\base\Model::validate()方法
     public function actionLogin() {
         Yii::info('开始进行登录认证');
         $loginDTO = new LoginDTO();
-        Yii::info(['LoginDTO'=> Yii::$app->request->post()]);
-        if (!$loginDTO->load(['LoginDTO'=> Yii::$app->request->post()],'LoginDTO') || !$loginDTO->validate()) {
+        Yii::info(['LoginDTO' => Yii::$app->request->post()]);
+        if (!$loginDTO->load(['LoginDTO' => Yii::$app->request->post()], 'LoginDTO') || !$loginDTO->validate()) {
             throw new BadRequestHttpException('登录信息不完整');
         }
         Yii::info('转换的LoginDTO为：' . $loginDTO);
@@ -88,11 +87,11 @@ class TokenController extends Controller {
         Yii::info($this->tokenManager);
         $this->tokenManager->deleteToken($user->username);
         //验证成功
-        return new LoginResult($user->id,$user->username,$this->tokenManager->createToken($user->username));
+        return new LoginResult($user->id, $user->username, $this->tokenManager->createToken($user->username));
     }
-    
-    public function actionLogout(){
-        Yii::info('删除token :'.Yii::$app->user->identity->username);
+
+    public function actionLogout() {
+        Yii::info('删除token :' . Yii::$app->user->identity->username);
         $this->tokenManager->deleteToken(Yii::$app->user->identity->username);
     }
 }
