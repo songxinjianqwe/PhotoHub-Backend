@@ -95,20 +95,51 @@ class BaseActiveController extends ActiveController {
                 'actions' => $actions,
                 'allow' => true,
                 'matchCallback' => function ($rule, $action) {
+                    Yii::info('开始校验权限...');
+                    Yii::info('当前访问的url为：' . Yii::$app->request->url);
                     //拿到user_id
-                    if (Yii::$app->request->isPost) {
-                        $userId = Yii::$app->request->bodyParams['user_id'];
-                        if ($userId === null) {
-                            $userId = Yii::$app->request->bodyParams['id'];
+                    if (Yii::$app->request->isPost || Yii::$app->request->isPut) {
+                        //POST请求中的user_id一定是放在请求体里的
+                        //因为新增用户的请求不需要校验，所以请求体里的用户id的名字一定是user_id
+                        //如果没带user_id，那么是不被允许的
+
+                        //PUT请求中的user_id会出现在url和请求体两个地方
+                        //我们要求这两个地方都要有user_id，并且值相同
+                        //只有PUT /users这个请求中的请求体的用户id的名字是id，所以特殊判断即可
+
+                        //使用正则：/前面要加\转义，前后加/
+                        if (preg_match('/^\/users\/\d+$/', Yii::$app->request->url)) {
+                            Yii::info('是更新用户信息的请求，特殊处理');
+                            $userIdInBody = Yii::$app->request->bodyParams['id'];
+                            $userIdInUrl = Yii::$app->request->get('id');
+                            if ($userIdInBody != $userIdInUrl) {
+                                return false;
+                            }
+                            $userId = $userIdInBody;
+                        } else {
+                            //其他更新请求，用户id以user_id的名字一定出现在请求体中，有可能以user_id的名字出现在url中
+                            $userIdInBody = Yii::$app->request->bodyParams['user_id'];
+                            $userIdInUrl = Yii::$app->request->get('user_id');
+                            //不可全为空
+                            if ($userIdInBody === null && $userIdInUrl === null) {
+                                return false;
+                            }
+                            //不为空且不相等
+                            if ($userIdInBody != null && $userIdInUrl != null && $userIdInUrl != $userIdInBody) {
+                                return false;
+                            }
+                            $userId = $userIdInBody === null ? $userIdInUrl : $userIdInBody;
                         }
-                        Yii::info('post请求，请求体中取出id:' . $userId);
-                    } elseif (Yii::$app->request->isGet || Yii::$app->request->isDelete || Yii::$app->request->isPut) {
+                    } else if (Yii::$app->request->isGet || Yii::$app->request->isDelete) {
                         $userId = Yii::$app->request->get('user_id');
-                        if ($userId === null) {
+                        if ($userId === null && preg_match('/\/users\/\d+/', Yii::$app->request->url)) {
                             $userId = Yii::$app->request->get('id');
+                        } else {
+                            Yii::info('未取得id');
                         }
                         Yii::info('get/put/delete请求，从url中取出id:' . $userId);
                     }
+                    Yii::info('已经计算出userId:' . $userId);
                     //进行判断
                     if (Yii::$app->user->identity->getId() == $userId) {
                         return true;

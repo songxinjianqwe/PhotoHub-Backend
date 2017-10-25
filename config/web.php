@@ -54,8 +54,8 @@ $config = [
                 'PUT users/<user_id:\d?>/follow_groups' => 'follow-group/update',
                 'DELETE users/<user_id:\d?>/follow_groups/<id:\d?>' => 'follow-group/delete',
                 //关注
-                'POST users/<user_id:\d?>/follow_groups/<group_id:\d?>/follows' => 'follow/create',
-                'DELETE users/<user_id:\d?>/follow_groups/<group_id:\d?>/follows/<id:\d?>' => 'follow/delete',
+                'POST users/<user_id:\d?>/follows' => 'follow/create',
+                'DELETE users/<user_id:\d?>/follows/<id:\d?>' => 'follow/delete',
                 //相册
                 'GET users/<user_id:\d?>/albums' => 'album/index',
                 'GET users/<user_id:\d?>/albums/<id:\d?>' => 'album/view',

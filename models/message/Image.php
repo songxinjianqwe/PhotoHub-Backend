@@ -13,21 +13,25 @@ use Yii;
  *
  * @property Message $message
  */
-class Image extends \yii\db\ActiveRecord
-{
+class Image extends \yii\db\ActiveRecord {
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'image';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function __toString() {
+        return '[id:' . $this->id . ', url:' . $this->url . ']';
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['message_id'], 'integer'],
             [['url'], 'string'],
@@ -38,8 +42,7 @@ class Image extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'message_id' => 'Message ID',

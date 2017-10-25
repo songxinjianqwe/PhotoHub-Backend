@@ -13,4 +13,16 @@ use app\controllers\base\BaseActiveController;
 
 class FollowController extends BaseActiveController {
     public $modelClass = 'app\models\follow\follow';
+
+    public function actions() {
+        $actions = parent::actions();
+        unset($actions['index'], $actions['view'], $actions['update']);
+        return $actions;
+    }
+
+    public function behaviors() {
+        $behaviors = parent::behaviors();
+        $behaviors = parent::requireAdminOrMySelf($behaviors, ['create', 'delete']);
+        return $behaviors;
+    }
 }

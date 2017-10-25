@@ -20,7 +20,7 @@ class FollowGroupController extends BaseActiveController {
 
     public function behaviors() {
         $behaviors = parent::behaviors();
-        $behaviors = parent::requireAdminOrMySelf($behaviors, ['view']);
+        $behaviors = parent::requireAdminOrMySelf($behaviors, ['view', 'create', 'update', 'delete']);
         return $behaviors;
     }
 
@@ -33,6 +33,7 @@ class FollowGroupController extends BaseActiveController {
         return $actions;
     }
 
+
     public function actionIndex() {
         $id = Yii::$app->request->get('user_id');
         if ($id === null || $id === '') {
@@ -43,6 +44,5 @@ class FollowGroupController extends BaseActiveController {
             'query' => FollowGroup::find()->where(['user_id' => $id])
         ]);
     }
-
 
 }
