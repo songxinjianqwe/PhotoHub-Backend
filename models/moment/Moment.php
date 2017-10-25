@@ -24,22 +24,38 @@ use Yii;
  * @property User $user
  * @property MomentTag[] $momentTags
  * @property Tag[] $tags
+ * 所有的查询函数都源自 find() 或 findBySql()这两个函数
+ * 还有findOne和findAll
+ * Moment::findOne()
+ * 
  */
-class Moment extends \yii\db\ActiveRecord
-{
+class Moment extends \yii\db\ActiveRecord {
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'moment';
+    }
+
+    /**
+     * 重新设置返回的属性，在此进行关联查询
+     * $this->getUser相当于$this->user
+     * @return array
+     */
+    public function fields() {
+        $fields = parent::fields();
+        Yii::info($fields);
+        unset($fields['user_id'], $fields['message_id'], $fields['album_id']);
+        $fields['user'] = 'user';
+        $fields['message'] = 'message';
+        $fields['album'] = 'album';
+        return $fields;
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['user_id', 'message_id', 'votes', 'comments', 'forwards', 'album_id'], 'integer'],
             [['album_id'], 'exist', 'skipOnError' => true, 'targetClass' => Album::className(), 'targetAttribute' => ['album_id' => 'id']],
@@ -51,8 +67,7 @@ class Moment extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
@@ -67,32 +82,28 @@ class Moment extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAlbum()
-    {
+    public function getAlbum() {
         return $this->hasOne(Album::className(), ['id' => 'album_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getMessage()
-    {
+    public function getMessage() {
         return $this->hasOne(Message::className(), ['id' => 'message_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUser()
-    {
+    public function getUser() {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTags()
-    {
+    public function getTags() {
         return $this->hasMany(Tag::className(), ['id' => 'tag_id'])->viaTable('moment_tag', ['moment_id' => 'id']);
     }
 }

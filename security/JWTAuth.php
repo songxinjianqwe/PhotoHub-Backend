@@ -34,8 +34,6 @@ class JWTAuth extends AuthMethod {
             $identity = User::findOne([
                 'username' => $username
             ]);
-            $identity->roles = $identity->getUserRoles();
-            Yii::info('将$identity存入内存 '.$identity);
             if ($identity === null) {
                 Yii::info('获取访问用户信息成功');
                 $this->handleFailure($response);

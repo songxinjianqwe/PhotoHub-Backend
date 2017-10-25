@@ -44,6 +44,15 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
     }
 
     /**
+     * @inheritDoc
+     */
+    public function fields() {
+        $fields = parent::fields();
+        unset($fields['password']);
+        return $fields;
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules() {
@@ -75,8 +84,6 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
     public function getActivities() {
         return $this->hasMany(Activity::className(), ['create_user_id' => 'id']);
     }
-
-
     /**
      * @return \yii\db\ActiveQuery
      */

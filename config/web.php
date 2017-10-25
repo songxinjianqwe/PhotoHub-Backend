@@ -44,10 +44,26 @@ $config = [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
-                //给出直接的映射，即使不是ActiveController也可以访问到
+                //登录注销
                 'POST tokens' => 'token/login',
                 'DELETE tokens' => 'token/logout',
-                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book']],
+                //关注分组
+                'GET users/<user_id:\d?>/follow_groups' => 'follow-group/index',
+                'GET users/<user_id:\d?>/follow_groups/<id:\d?>' => 'follow-group/view',
+                'POST users/<user_id:\d?>/follow_groups' => 'follow-group/create',
+                'PUT users/<user_id:\d?>/follow_groups' => 'follow-group/update',
+                'DELETE users/<user_id:\d?>/follow_groups/<id:\d?>' => 'follow-group/delete',
+                //关注
+                'POST users/<user_id:\d?>/follow_groups/<group_id:\d?>/follows' => 'follow/create',
+                'DELETE users/<user_id:\d?>/follow_groups/<group_id:\d?>/follows/<id:\d?>' => 'follow/delete',
+                //相册
+                'GET users/<user_id:\d?>/albums' => 'album/index',
+                'GET users/<user_id:\d?>/albums/<id:\d?>' => 'album/view',
+                'POST users/<user_id:\d?>/albums' => 'album/create',
+                'PUT users/<user_id:\d?>/albums' => 'album/update',
+                'DELETE users/<user_id:\d?>/albums/<id:\d?>' => 'album/delete',
+                
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment','message']],
             ],
         ],
         //日志

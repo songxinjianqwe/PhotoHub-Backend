@@ -34,6 +34,16 @@ class Message extends \yii\db\ActiveRecord {
     }
 
     /**
+     * @inheritDoc
+     */
+    public function fields() {
+        $fields = parent::fields();
+        $fields['images'] = 'images';
+        $fields['videos'] = 'videos';
+        return $fields;
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules() {

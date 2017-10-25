@@ -27,6 +27,17 @@ class Follow extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritDoc
+     */
+    public function fields() {
+        $fields = parent::fields();
+        unset($fields['followed_user_id']);
+        $fields['followedUser'] = 'followedUser';
+        return $fields;
+    }
+
+
+    /**
      * @inheritdoc
      */
     public function rules()

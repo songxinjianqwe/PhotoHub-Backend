@@ -26,6 +26,16 @@ class FollowGroup extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritDoc
+     */
+    public function fields() {
+        $fields = parent::fields();
+        unset($fields['user_id']);
+        $fields['follows'] = 'follows';
+        return $fields; 
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules()

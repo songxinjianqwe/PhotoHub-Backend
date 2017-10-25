@@ -12,7 +12,6 @@ namespace app\controllers;
 use app\controllers\base\BaseActiveController;
 use app\models\user\User;
 use Yii;
-use yii\filters\AccessControl;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 
@@ -20,26 +19,24 @@ class UserController extends BaseActiveController {
     public $modelClass = 'app\models\user\User';
 
     /**
-     * 自行添加不需要登录的action
+     * 在这里对认证和授权进行限制
+     * 如果需要重写，那么需要设置 $behaviors['authenticator']['except']和unset($actions['create'])
+     * 并实现函数actionCreate
+     * 如果需要对某个action设置管理员权限，需要设置$behaviors = parent::requireAdminRule($behaviors,'index')
+     * 如果需要对某个action设置管理员或本人权限，需要设置$behaviors = parent::requireAdminOrMySelfRule($behaviors, 'view', explode('/',Yii::$app->request->pathInfo)[1])
      * @return array
      */
     public function behaviors() {
         $behaviors = parent::behaviors();
-        $behaviors['authenticator']['except'] = ['create'];
-        $behaviors['access'] = [
-            'class' => AccessControl::className(),
-            'only' => ['index'],
-            'rules' => [
-                [
-                    'actions' => ['index'],
-                    'allow' => true,
-                    'matchCallback' => function ($rule, $action) {
-//                        return 
-                    }
-                ],
-            ],
-        ];
-        return $behaviors;
+        //访问 POST /users不需要任何权限
+        $behaviors = parent::requireNone($behaviors, ['create']);
+        //访问/users 需要管理员权限
+        $behaviors = parent::requireAdmin($behaviors, ['index']);
+        //修改用户信息 需要管理员或本人权限
+        $behaviors = parent::requireAdminOrMySelf($behaviors, ['update']);
+        Yii::info('最终的behaviors');
+        Yii::info($behaviors);
+        return $behaviors;  
     }
 
     /**

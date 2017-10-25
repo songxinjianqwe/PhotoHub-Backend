@@ -1,0 +1,40 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: songx
+ * Date: 2017/10/25
+ * Time: 14:22
+ */
+
+namespace app\controllers;
+
+
+use app\controllers\base\BaseActiveController;
+use app\models\album\Album;
+use yii\data\ActiveDataProvider;
+use yii\web\BadRequestHttpException;
+
+class AlbumController extends BaseActiveController{
+    public $modelClass = 'app\models\album\Album';
+    
+    /**
+     * @return array
+     */
+    public function actions() {
+        $actions = parent::actions();
+        unset($actions['index']);
+        return $actions;
+    }
+    
+    public function actionIndex() {
+        $id = Yii::$app->request->get('user_id');
+        if ($id === null || $id === '') {
+            throw new BadRequestHttpException("user_id not given");
+        }
+        return Yii::createObject([
+            'class' => ActiveDataProvider::className(),
+            'query' => Album::find()->where(['user_id' => $id])
+        ]);
+    }
+    
+}
