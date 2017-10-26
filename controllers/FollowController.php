@@ -20,9 +20,22 @@ class FollowController extends BaseActiveController {
         return $actions;
     }
 
+    /**
+     * 只有关注和取关两种操作
+     * @return array
+     */
     public function behaviors() {
         $behaviors = parent::behaviors();
         $behaviors = parent::requireAdminOrMySelf($behaviors, ['create', 'delete']);
         return $behaviors;
     }
+    //TODO
+    public function actionCreate(){
+            
+    }
+    //TODO
+    public function actionDelete(){
+        
+    }
+    
 }

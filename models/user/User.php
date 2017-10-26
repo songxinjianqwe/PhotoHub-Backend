@@ -3,14 +3,15 @@
 namespace app\models\user;
 
 use app\models\activity\Activity;
+use app\models\activity\ActivityReply;
 use app\models\album\Album;
 use app\models\follow\Follow;
 use app\models\follow\FollowGroup;
 use app\models\message\action\Comment;
 use app\models\message\action\Forward;
 use app\models\message\action\Vote;
+use app\models\message\Message;
 use app\models\moment\Moment;
-use app\models\tag\Tag;
 use Yii;
 use yii\web\IdentityInterface;
 
@@ -23,33 +24,31 @@ use yii\web\IdentityInterface;
  * @property string $reg_time
  * @property string $avatar
  * @property integer $followers
+ * @property integer $default_album_id
+ * @property integer $default_follow_group_id
  *
  * @property Activity[] $activities
+ * @property ActivityReply[] $activityReplies
  * @property Album[] $albums
  * @property Comment[] $comments
  * @property Follow[] $follows
  * @property FollowGroup[] $followGroups
  * @property Forward[] $forwards
+ * @property Message[] $messages
  * @property Moment[] $moments
+ * @property FollowGroup $defaultFollowGroup
+ * @property Album $defaultAlbum
+ * @property UserRole[] $userRoles
  * @property Role[] $roles
+ * @property UserTag[] $userTags
  * @property Vote[] $votes
  */
-class User extends \yii\db\ActiveRecord implements IdentityInterface {
-    
+class User extends \yii\db\ActiveRecord implements IdentityInterface{
     /**
      * @inheritdoc
      */
     public static function tableName() {
         return 'user';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function fields() {
-        $fields = parent::fields();
-        unset($fields['password']);
-        return $fields;
     }
 
     /**
@@ -60,7 +59,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
             [['username', 'password'], 'required'],
             [['username', 'password', 'avatar'], 'string'],
             [['reg_time'], 'safe'],
-            [['followers'], 'integer'],
+            [['followers', 'default_album_id', 'default_follow_group_id'], 'integer'],
+            [['default_follow_group_id'], 'exist', 'skipOnError' => true, 'targetClass' => FollowGroup::className(), 'targetAttribute' => ['default_follow_group_id' => 'id']],
+            [['default_album_id'], 'exist', 'skipOnError' => true, 'targetClass' => Album::className(), 'targetAttribute' => ['default_album_id' => 'id']],
         ];
     }
 
@@ -75,6 +76,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
             'reg_time' => 'Reg Time',
             'avatar' => 'Avatar',
             'followers' => 'Followers',
+            'default_album_id' => 'Default Album ID',
+            'default_follow_group_id' => 'Default Follow Group ID',
         ];
     }
 
@@ -84,6 +87,14 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
     public function getActivities() {
         return $this->hasMany(Activity::className(), ['create_user_id' => 'id']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getActivityReplies() {
+        return $this->hasMany(ActivityReply::className(), ['user_id' => 'id']);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -122,15 +133,35 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getMoments() {
-        return $this->hasMany(Moment::className(), ['user_id' => 'id']);
+    public function getMessages() {
+        return $this->hasMany(Message::className(), ['user_id' => 'id']);
     }
-
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUserRoles() {
+    public function getMoments() {
+        return $this->hasMany(Moment::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDefaultFollowGroup() {
+        return $this->hasOne(FollowGroup::className(), ['id' => 'default_follow_group_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDefaultAlbum() {
+        return $this->hasOne(Album::className(), ['id' => 'default_album_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRoles() {
         return $this->hasMany(Role::className(), ['id' => 'role'])->viaTable('user_role', ['user' => 'id']);
     }
 
@@ -140,17 +171,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
     public function getVotes() {
         return $this->hasMany(Vote::className(), ['user_id' => 'id']);
     }
-
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTags() {
-        return $this->hasMany(Tag::className(), ['id' => 'tag_id'])->viaTable('user_tag', ['user_id' => 'id']);
-    }
-
-
-    /**
+    
+     /**
      * Finds an identity by the given ID.
      * @param string|int $id the ID to be looked for
      * @return IdentityInterface the identity object that matches the given ID.

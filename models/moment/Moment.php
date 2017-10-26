@@ -57,6 +57,7 @@ class Moment extends \yii\db\ActiveRecord {
      */
     public function rules() {
         return [
+            [['user_id','message_id'], 'required'],
             [['user_id', 'message_id', 'votes', 'comments', 'forwards', 'album_id'], 'integer'],
             [['album_id'], 'exist', 'skipOnError' => true, 'targetClass' => Album::className(), 'targetAttribute' => ['album_id' => 'id']],
             [['message_id'], 'exist', 'skipOnError' => true, 'targetClass' => Message::className(), 'targetAttribute' => ['message_id' => 'id']],

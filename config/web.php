@@ -62,6 +62,12 @@ $config = [
                 'POST users/<user_id:\d?>/albums' => 'album/create',
                 'PUT users/<user_id:\d?>/albums' => 'album/update',
                 'DELETE users/<user_id:\d?>/albums/<id:\d?>' => 'album/delete',
+                //点赞评论转发
+                'POST messages/<id:\d?>/vote' => 'message/vote',
+                'DELETE messages/<id:\d?>/vote' => 'message/un-vote',
+                'POST messages/<id:\d?>/comment' => 'message/comment',
+                'DELETE messages/<id:\d?>/comment' => 'message/un-comment',
+                'POST messages/<id:\d?>/forward' => 'message/forward',
                 
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment','message']],
             ],

@@ -10,6 +10,11 @@ namespace app\controllers;
 
 
 use app\controllers\base\BaseActiveController;
+use app\models\album\Album;
+use app\models\follow\Follow;
+use app\models\follow\FollowGroup;
+use app\models\tag\Tag;
+use app\models\tag\UserTag;
 use app\models\user\User;
 use Yii;
 use yii\web\BadRequestHttpException;
@@ -36,7 +41,7 @@ class UserController extends BaseActiveController {
         $behaviors = parent::requireAdminOrMySelf($behaviors, ['update']);
         Yii::info('最终的behaviors');
         Yii::info($behaviors);
-        return $behaviors;  
+        return $behaviors;
     }
 
     /**
@@ -53,8 +58,9 @@ class UserController extends BaseActiveController {
      * 注册
      */
     public function actionCreate() {
+        $body = Yii::$app->request->post();
         $user = new User();
-        if (!$user->load(['User' => Yii::$app->request->post()], 'User') || !$user->validate()) {
+        if (!$user->load(['User' => $body], 'User') || !$user->validate()) {
             throw new BadRequestHttpException('注册信息不完整');
         }
         if (User::findOne([
@@ -66,7 +72,46 @@ class UserController extends BaseActiveController {
         Yii::info('对密码进行加密');
         $user->password = Yii::$app->getSecurity()->generatePasswordHash($user->password);
         $user->save();
+
+        //同时创建一个默认相册和默认的关注分组
+        $album = new Album();
+        $album->name = '默认相册';
+        $album->description = $user->username . '的默认相册';
+        $album->user_id = $user->id;
+        $album->save();
+
+        $followGroup = new FollowGroup();
+        $followGroup->user_id = $user->id;
+        $followGroup->group_name = '默认分组';
+        $followGroup->save();
+
+        //再次更新user
+        $user->default_album_id = $album->id;
+        $user->default_follow_group_id = $followGroup->id;
+        $user->update();
         $user->password = '';
+
+        //保存用户的tags
+        $tags = $body['tags'];
+        if ($tags !== null) {
+            foreach ($tags as $tag) {
+                Tag::saveTag($tag,$user->id,"user");
+            }
+        }
+        
+        $follows = $body['follows'];
+        if ($follows !== null) {
+            foreach ($follows as $followedUserId) {
+                $fol = new Follow();
+                $fol->followed_user_id = $followedUserId;
+                $fol->group_id = $user->default_follow_group_id;
+                $fol->save();
+                
+                $followedUser = User::findOne($followedUserId);
+                $followedUser->followers++;
+                $followedUser->update();
+            }
+        }
         return $user;
     }
 }

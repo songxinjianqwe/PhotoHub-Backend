@@ -20,7 +20,7 @@ use yii\web\ServerErrorHttpException;
 
 class MessageController extends BaseActiveController {
     public $modelClass = 'app\models\message\Message';
-    
+
     /**
      * @return array
      */
@@ -29,10 +29,10 @@ class MessageController extends BaseActiveController {
         unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
         return $actions;
     }
-    
+
     public function behaviors() {
         $behaviors = parent::behaviors();
-        $behaviors = parent::requireAdminOrMySelf($behaviors, ['create','update']);
+        $behaviors = parent::requireAdminOrMySelf($behaviors, ['create', 'update']);
         return $behaviors;
     }
 
@@ -187,10 +187,10 @@ class MessageController extends BaseActiveController {
     public function actionDelete() {
         $id = Yii::$app->request->get('id');
         $message = Message::findOne($id);
-        if($message === null){
+        if ($message === null) {
             throw new NotFoundHttpException("id not found");
         }
-        if($message->user_id != Yii::$app->user->identity->getId()){
+        if ($message->user_id != Yii::$app->user->identity->getId()) {
             throw new ForbiddenHttpException();
         }
         foreach ($message->images as $img) {
@@ -202,4 +202,29 @@ class MessageController extends BaseActiveController {
         $message->delete();
     }
 
+    //TODO
+    public function actionVote() {
+
+    }
+
+    //TODO
+    public function actionUnVote() {
+
+    }
+
+    //TODO
+    public function actionComment() {
+
+    }
+
+    //TODO
+    public function actionUnComment() {
+
+    }
+
+    //TODO
+    public function actionForward() {
+
+    }
 }
+

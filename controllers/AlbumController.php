@@ -11,6 +11,7 @@ namespace app\controllers;
 
 use app\controllers\base\BaseActiveController;
 use app\models\album\Album;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\BadRequestHttpException;
 
@@ -36,5 +37,4 @@ class AlbumController extends BaseActiveController{
             'query' => Album::find()->where(['user_id' => $id])
         ]);
     }
-    
 }
