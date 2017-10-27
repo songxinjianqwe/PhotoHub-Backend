@@ -9,6 +9,8 @@
 namespace app\cache;
 
 
+use app\models\page\PageDTO;
+use app\models\page\PageInfo;
 use Yii;
 
 class RedisZSetManager {
@@ -49,12 +51,19 @@ class RedisZSetManager {
         Yii::$app->redis->zincrby($this->getSetName($zsetKey), $increment, $key);
     }
 
+    public function getTotalCount($zsetKey = '') {
+        return Yii::$app->redis->zcard($this->getSetName($zsetKey));
+    }
+
     public function indexDesc($page, $per_page, $zsetKey = '') {
         Yii::info('Yii::$app->redis->zRevRange($zsetName, ($page - 1) * $per_page, $page * $per_page)   ');
         Yii::info('$page:' . $page);
         Yii::info('$per_page:' . $per_page);
-        $data = Yii::$app->redis->zrevrange($this->getSetName($zsetKey), ($page - 1) * $per_page, $page * $per_page);
-        Yii::info('data:' . implode(';', $data));
-        return $data;
+        $ids = Yii::$app->redis->zrevrange($this->getSetName($zsetKey), ($page - 1) * $per_page, $page * $per_page - 1);
+        Yii::info('ids:' . implode(';', $ids));
+
+        $totalCount = $this->getTotalCount($zsetKey);
+        $pageCount = ceil($totalCount / $per_page);
+        return new PageDTO($ids, new PageInfo(intval($totalCount), $pageCount, intval($page), intval(min($per_page, $totalCount))));
     }
 }

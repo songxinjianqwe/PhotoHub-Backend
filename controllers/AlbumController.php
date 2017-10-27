@@ -24,6 +24,15 @@ use yii\web\NotFoundHttpException;
  */
 class AlbumController extends BaseActiveController {
     public $modelClass = 'app\models\album\Album';
+    private $hotTagsService;
+
+    /**
+     * @inheritDoc
+     */
+    public function init() {
+        $this->hotTagsService = Yii::$container->get('app\cache\service\HotTagsService');
+    }
+
 
     /**
      * @return array
@@ -58,7 +67,7 @@ class AlbumController extends BaseActiveController {
             if ($body['tags'] !== null) {
                 $tags = $body['tags'];
                 foreach ($tags as $tag) {
-                    Tag::saveTag($tag, $album->id, "album");
+                    $this->hotTagsService->saveTag($tag, $album->id, "album");
                 }
             }
         } else {
@@ -81,9 +90,9 @@ class AlbumController extends BaseActiveController {
             throw new BadRequestHttpException();
         }
         if ($body['tags'] === null) {
-            Tag::updateTags($album->tags, [], $album->id, "album");
+            $this->hotTagsService->updateTags($album->tags, [], $album->id, "album");
         } else {
-            Tag::updateTags($album->tags, $body['tags'], $album->id, "album");
+            $this->hotTagsService->updateTags($album->tags, $body['tags'], $album->id, "album");
         }
         return Album::findOne($body['id']);
     }
@@ -99,7 +108,7 @@ class AlbumController extends BaseActiveController {
         }
         $album->delete();
         //删除对应的tag
-        Tag::deleteTags($album->tags, $album->id, 'album');
+        $this->hotTagsService->deleteTags($album->tags, $album->id, 'album');
     }
 
 }

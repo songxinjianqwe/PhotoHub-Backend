@@ -22,10 +22,19 @@ use yii\data\ActiveDataProvider;
  */
 class ActivityReplyController extends BaseActiveController {
     public $modelClass = 'app\models\activity\ActivityReply';
+    private $hotActivitiesService;
+
+    /**
+     * @inheritDoc
+     */
+    public function init() {
+        $this->hotActivitiesService = Yii::$container->get('app\cache\service\HotActivitiesService');
+    }
+
 
     public function actions() {
         $actions = parent::actions();
-        unset($actions['index'], $actions['update']);
+        unset($actions['index'], $actions['update'], $actions['create'], $actions['delete']);
         return $actions;
     }
 
@@ -40,14 +49,23 @@ class ActivityReplyController extends BaseActiveController {
         });
         return $behaviors;
     }
-    
-    public function  actionIndex() {
+
+    public function actionIndex() {
         $activityId = Yii::$app->request->get('activity_id');
         return Yii::createObject([
             'class' => ActiveDataProvider::className(),
             'query' => ActivityReply::find()->where(['activity_id' => $activityId])
         ]);
     }
+    //TODO
+    public function actionCreate(){
+        
+    }
     
-    
+    //TODO
+    public function actionDelete(){
+        
+    }
+
+
 }

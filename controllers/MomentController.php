@@ -9,11 +9,13 @@
 namespace app\controllers;
 
 
+use app\constant\PageConstant;
 use app\controllers\base\BaseActiveController;
 use app\models\moment\Moment;
 use app\models\tag\Tag;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\IntegrityException;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -21,9 +23,13 @@ use yii\web\NotFoundHttpException;
 class MomentController extends BaseActiveController {
     public $modelClass = 'app\models\moment\Moment';
     private $feedService;
+    private $hotTagsService;
+    private $hotMomentsService;
 
     public function init() {
         $this->feedService = Yii::$container->get('app\cache\service\FeedService');
+        $this->hotTagsService = Yii::$container->get('app\cache\service\HotTagsService');
+        $this->hotMomentsService = Yii::$container->get('app\cache\service\HotMomentsService');
     }
 
     /**
@@ -32,7 +38,7 @@ class MomentController extends BaseActiveController {
     public function behaviors() {
         $behaviors = parent::behaviors();
         //允许GET /moments 和 GET /moments/{id}
-        $behaviors = parent::requireNone($behaviors, ['index', 'view']);
+        $behaviors = parent::requireNone($behaviors, ['index', 'view','hot']);
         $behaviors = parent::requireAdminOrMySelf($behaviors, ['create', 'update']);
         return $behaviors;
     }
@@ -68,13 +74,17 @@ class MomentController extends BaseActiveController {
         $body = Yii::$app->request->post();
         $moment = new Moment();
         if ($moment->load(['Moment' => $body], 'Moment')) {
-            $moment->save();
+            try {
+                $moment->save();
+            } catch (IntegrityException $e) {
+                throw new BadRequestHttpException('moment id 不可重复');
+            }
             //先保存moment
             //对tag进行保存
             if ($body['tags'] !== null) {
                 $tags = $body['tags'];
                 foreach ($tags as $tag) {
-                    Tag::saveTag($tag, $moment->id, "moment");
+                    $this->hotTagsService->saveTag($tag, $moment->id, "moment");
                 }
             }
         } else {
@@ -82,6 +92,7 @@ class MomentController extends BaseActiveController {
         }
         Yii::info('增加moment');
         $this->feedService->addMoment($moment->user_id, $moment->id);
+        $this->hotMomentsService->createMoment($moment->id);
         return $moment;
     }
 
@@ -100,14 +111,18 @@ class MomentController extends BaseActiveController {
             if ($oldUserId != $moment->user_id) {
                 throw new BadRequestHttpException('user id can not be changed');
             }
-            $moment->update();
+            try {
+                $moment->update();
+            } catch (IntegrityException $e) {
+                throw new BadRequestHttpException('moment id 不可重复');
+            }
         } else {
             throw new BadRequestHttpException();
         }
         if ($body['tags'] === null) {
-            Tag::updateTags($moment->tags, [], $moment->id, "moment");
+            $this->hotTagsService->updateTags($moment->tags, [], $moment->id, "moment");
         } else {
-            Tag::updateTags($moment->tags, $body['tags'], $moment->id, "moment");
+            $this->hotTagsService->updateTags($moment->tags, $body['tags'], $moment->id, "moment");
         }
         return Moment::findOne($body['id']);
     }
@@ -128,11 +143,14 @@ class MomentController extends BaseActiveController {
         }
         $moment->delete();
         //删除对应的tag
-        Tag::deleteTags($moment->tags, $moment->id, 'moment');
+        $this->hotTagsService->deleteTags($moment->tags, $moment->id, 'moment');
         $this->feedService->removeMoment($moment->user_id, $moment->id);
+        $this->hotMomentsService->removeMoment($moment->id);
     }
 
     public function actionHot() {
-        
+        $page = Yii::$app->request->get('page');
+        $per_page = Yii::$app->request->get('per_page');
+        return $this->hotMomentsService->show($page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
     }
 }

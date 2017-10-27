@@ -12,7 +12,9 @@ namespace app\cache\service;
 use app\cache\RedisZSetManager;
 use app\models\follow\Follow;
 use app\models\moment\Moment;
+use app\models\page\PageVO;
 use Yii;
+use yii\db\Expression;
 
 class FeedService {
     private $manager;
@@ -36,9 +38,9 @@ class FeedService {
             $this->manager->removeElement($momentId, $follower->user_id);
         }
     }
-
+    
     public function show($userId, $page, $per_page) {
-        $ids = $this->manager->indexDesc($page, $per_page, $userId);
-        return Moment::find()->where(['id' => $ids])->all();
+        $pageDTO = $this->manager->indexDesc($page, $per_page, $userId);
+        return new PageVO(Moment::find()->where(['id' => $pageDTO->ids])->orderBy('id desc')->all(), $pageDTO->_meta);
     }
 }

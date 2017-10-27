@@ -23,7 +23,7 @@ class FollowController extends BaseActiveController {
 
     public function actions() {
         $actions = parent::actions();
-        unset($actions['index'], $actions['view'], $actions['update'], $actions['create'], $actions['delete']);
+        unset($actions['index'], $actions['view'], $actions['update']);
         return $actions;
     }
 
@@ -47,33 +47,4 @@ class FollowController extends BaseActiveController {
         });
         return $behaviors;
     }
-
-    /**
-     * 同步更新Feed
-     * @return \yii\db\ActiveRecordInterface
-     */
-    public function actionCreate() {
-        //实际的create
-        $action = new CreateAction('create', $this, ['modelClass' => $this->modelClass]);
-        $model = $action->run();
-        //后置的同步更新
-        $followed_user_id = Yii::$app->request->bodyParams["followed_user_id"];
-        $user = User::findOne($followed_user_id);
-        $user->followers++;
-        $user->update();
-        return $model;
-    }
-
-    /**
-     * 同步更新Feed
-     */
-    public function actionDelete() {
-        $followId = Yii::$app->request->get('id');
-        $follow = Follow::findOne($followId);
-        $user = User::findOne($follow->followed_user_id);
-        $user->followers--;
-        $user->update();
-        $follow->delete();
-    }
-
 }

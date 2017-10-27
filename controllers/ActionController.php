@@ -22,6 +22,14 @@ use yii\web\NotFoundHttpException;
 
 class ActionController extends BaseActiveController {
     public $modelClass = 'app\models\message\Message';
+    private $hotMomentsService;
+
+    /**
+     * @inheritDoc
+     */
+    public function init() {
+        $this->hotMomentsService = Yii::$container->get('app\cache\service\HotMomentsService');
+    }
 
     /**
      * 只有关注和取关两种操作
@@ -72,15 +80,22 @@ class ActionController extends BaseActiveController {
         $moment = Moment::findOne([
             'message_id' => $messageId
         ]);
+        //如果是给动态点赞，那么会影响到该动态的热门程度
         if ($moment !== null) {
-            $moment->votes++;
-            $moment->update();
+            $this->hotMomentsService->referMoment($moment->id);
         }
         return $vote;
     }
 
     public function actionUnVote() {
-        Vote::findOne(Yii::$app->request->get('id'))->delete();
+        $vote = Vote::findOne(Yii::$app->request->get('id'));
+        $vote->delete();
+        $moment = Moment::findOne([
+            'message_id' => $vote->message_id
+        ]);
+        if ($moment !== null) {
+            $this->hotMomentsService->unReferMoment($moment->id);
+        }
     }
 
     public function actionComment() {
@@ -103,15 +118,20 @@ class ActionController extends BaseActiveController {
             'message_id' => $messageId
         ]);
         if ($moment !== null) {
-            $moment->comments++;
-            $moment->update();
+            $this->hotMomentsService->referMoment($moment->id);
         }
-
         return $comment;
     }
 
     public function actionUnComment() {
-        Comment::findOne(Yii::$app->request->get('id'))->delete();
+        $comment = Comment::findOne(Yii::$app->request->get('id'));
+        $comment->delete();
+        $moment = Moment::findOne([
+            'message_id' => $comment->message_id
+        ]);
+        if ($moment !== null) {
+            $this->hotMomentsService->unReferMoment($moment->id);
+        }
     }
 
     public function actionForward() {
@@ -134,8 +154,7 @@ class ActionController extends BaseActiveController {
             'message_id' => $messageId
         ]);
         if ($moment !== null) {
-            $moment->forwards++;
-            $moment->update();
+            $this->hotMomentsService->referMoment($moment->id);
         }
         return $forward;
     }
