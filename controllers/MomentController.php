@@ -124,4 +124,8 @@ class MomentController extends BaseActiveController {
         //删除对应的tag
         Tag::deleteTags($moment->tags, $moment->id, 'moment');
     }
+    
+    public function actionHot(){
+        
+    }
 }

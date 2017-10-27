@@ -10,6 +10,11 @@ namespace app\cache;
 use Yii;
 
 class RedisCacheManager {
+    private $prefix;
+    public function setPrefix($prefix) {
+        $this->prefix = $prefix;
+    }
+
     /**
      * 将键值对放到redis中
      * @param $key
@@ -18,7 +23,7 @@ class RedisCacheManager {
      */
     public function putWithExpireTime($key,$value,$expireTime){
         Yii::info('放入cache : key:'.$key.'  value:'.$value);
-        Yii::$app->redis->setex($key, $expireTime, $value);
+        Yii::$app->redis->setex($this->prefix.'.'.$key, $expireTime, $value);
     }
 
     /**
@@ -27,10 +32,10 @@ class RedisCacheManager {
      */
     public function get($key){
         Yii::info('从cache中取出 : key:'.$key.'  value:'.Yii::$app->redis->get($key));
-        return Yii::$app->redis->get($key);
+        return Yii::$app->redis->get($this->prefix.'.'.$key);
     }
     
     public function delete($key){
-        Yii::$app->redis->del($key);
+        Yii::$app->redis->del($this->prefix.$key);
     }
 }

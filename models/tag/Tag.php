@@ -62,6 +62,7 @@ class Tag extends \yii\db\ActiveRecord {
                     $propertyName => $typeId
                 ]);
                 $deletedTypeTag->delete();
+                //TODO
                 $oldTag->reference_times--;
                 $oldTag->update();
             }
@@ -78,6 +79,7 @@ class Tag extends \yii\db\ActiveRecord {
                 $propertyName => $typeId
             ]);
             $deletedTypeTag->delete();
+            //TODO
             $tag->reference_times--;
             $tag->update();
         }
@@ -89,8 +91,7 @@ class Tag extends \yii\db\ActiveRecord {
      */
     public function rules() {
         return [
-            [['name'], 'string'],
-            [['reference_times'], 'integer'],
+            [['name'], 'string']
         ];
     }
 
@@ -100,8 +101,7 @@ class Tag extends \yii\db\ActiveRecord {
     public function attributeLabels() {
         return [
             'id' => 'ID',
-            'name' => 'Name',
-            'reference_times' => 'Reference Times',
+            'name' => 'Name'
         ];
     }
 
@@ -126,6 +126,7 @@ class Tag extends \yii\db\ActiveRecord {
             $typeTag->save();
         } else {
             //如果存在则引用
+            //TODO
             $tagDO->reference_times++;
             $tagDO->update();
 

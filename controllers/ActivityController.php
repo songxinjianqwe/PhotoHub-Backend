@@ -27,5 +27,9 @@ class ActivityController extends BaseActiveController {
         });
         return $behaviors;
     }
+    
+    public function actionHot(){
+        
+    }
 
 }

@@ -9,6 +9,8 @@
 namespace app\controllers;
 
 
-class TagTalent {
+use app\controllers\base\BaseActiveController;
 
+class TagController extends BaseActiveController {
+    
 }

@@ -41,7 +41,7 @@ class Activity extends \yii\db\ActiveRecord {
     public function rules() {
         return [
             [['create_time'], 'safe'],
-            [['user_id', 'message_id', 'replies'], 'integer'],
+            [['user_id', 'message_id'], 'integer'],
             [['title'], 'string'],
             [['message_id'], 'exist', 'skipOnError' => true, 'targetClass' => Message::className(), 'targetAttribute' => ['message_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
@@ -58,7 +58,6 @@ class Activity extends \yii\db\ActiveRecord {
             'user_id' => 'User ID',
             'title' => 'Title',
             'message_id' => 'Message ID',
-            'replies' => 'Replies',
         ];
     }
 

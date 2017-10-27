@@ -17,10 +17,13 @@ class TokenManager {
     //过期时间为一天
     const expireTime = 86400;
     const key = '12asdiqwej@3!@#(18u3e21j30 1230!N@#(';
+    
     private $cacheManager;
+    const prefix = "token";
 
     public function __construct() {
         $this->cacheManager = Yii::$container->get('app\cache\RedisCacheManager');
+        $this->cacheManager->setPrefix(static::prefix);
     }
 
     public function createToken($username) {

@@ -73,6 +73,10 @@ $config = [
                 'GET activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/view',
                 'POST activities/<activity_id:\d+>/replies' => 'activity-reply/create',
                 'DELETE activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/delete',
+                //热门动态，分页显示
+                'GET moments/hot' => 'message/hot',
+                //热门活动
+                'GET activities/hot' => 'activity/hot',
                 // /<controller> 四种方法
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment','message','activity']],
             ],

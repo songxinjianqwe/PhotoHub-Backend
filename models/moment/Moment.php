@@ -59,7 +59,7 @@ class Moment extends \yii\db\ActiveRecord {
         return [
             [['id'],'safe'],
             [['user_id','message_id'], 'required'],
-            [['user_id', 'message_id', 'votes', 'comments', 'forwards', 'album_id'], 'integer'],
+            [['user_id', 'message_id', 'album_id'], 'integer'],
             [['album_id'], 'exist', 'skipOnError' => true, 'targetClass' => Album::className(), 'targetAttribute' => ['album_id' => 'id']],
             [['message_id'], 'exist', 'skipOnError' => true, 'targetClass' => Message::className(), 'targetAttribute' => ['message_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
@@ -74,9 +74,6 @@ class Moment extends \yii\db\ActiveRecord {
             'id' => 'ID',
             'user_id' => 'User ID',
             'message_id' => 'Message ID',
-            'votes' => 'Votes',
-            'comments' => 'Comments',
-            'forwards' => 'Forwards',
             'album_id' => 'Album ID',
         ];
     }
