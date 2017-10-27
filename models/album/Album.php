@@ -21,21 +21,25 @@ use Yii;
  * @property Tag[] $tags
  * @property Moment[] $moments
  */
-class Album extends \yii\db\ActiveRecord
-{
+class Album extends \yii\db\ActiveRecord {
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'album';
+    }
+
+    public function fields() {
+        $fields = parent::fields();
+        $fields['tags'] = 'tags';
+        $fields['moments'] = 'moments';
+        return $fields;
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['name', 'description'], 'string'],
             [['user_id'], 'integer'],
@@ -47,8 +51,7 @@ class Album extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'name' => 'Name',
@@ -61,24 +64,21 @@ class Album extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUser()
-    {
+    public function getUser() {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
-   
+
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTags()
-    {
+    public function getTags() {
         return $this->hasMany(Tag::className(), ['id' => 'tag_id'])->viaTable('album_tag', ['album_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getMoments()
-    {
+    public function getMoments() {
         return $this->hasMany(Moment::className(), ['album_id' => 'id']);
     }
 }

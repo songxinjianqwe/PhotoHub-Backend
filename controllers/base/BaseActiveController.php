@@ -81,7 +81,7 @@ class BaseActiveController extends ActiveController {
     }
 
 
-    protected function requireAdminOrMySelf($behaviors, $actions) {
+    protected function requireAdminOrMySelf($behaviors, $actions, $extraCheck = null) {
         if ($behaviors['access'] == null) {
             $behaviors['access'] = [
                 'class' => AccessControl::className(),
@@ -94,7 +94,7 @@ class BaseActiveController extends ActiveController {
             [
                 'actions' => $actions,
                 'allow' => true,
-                'matchCallback' => function ($rule, $action) {
+                'matchCallback' => function ($rule, $action) use ($extraCheck) {
                     Yii::info('开始校验权限...');
                     Yii::info('当前访问的url为：' . Yii::$app->request->url);
                     //拿到user_id
@@ -140,8 +140,43 @@ class BaseActiveController extends ActiveController {
                         Yii::info('get/put/delete请求，从url中取出id:' . $userId);
                     }
                     Yii::info('已经计算出userId:' . $userId);
+                    if ($extraCheck !== null && !call_user_func($extraCheck)) {
+                        Yii::info('extraCheck未通过');
+                        return false;
+                    }
                     //进行判断
                     if (Yii::$app->user->identity->getId() == $userId) {
+                        return true;
+                    }
+                    foreach (Yii::$app->user->identity->userRoles as &$role) {
+                        if ($role->role_name === 'ROLE_ADMIN') {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            ]);
+        return $behaviors;
+    }
+
+    protected function requireCustomOrAdmin($behaviors, $actions, $checkCallback) {
+        if ($behaviors['access'] == null) {
+            $behaviors['access'] = [
+                'class' => AccessControl::className(),
+                'only' => [],
+                'rules' => [],
+            ];
+        }
+        $behaviors['access']['only'] = array_merge($behaviors['access']['only'], $actions);
+        array_push($behaviors['access']['rules'],
+            [
+                'actions' => $actions,
+                'allow' => true,
+                'matchCallback' => function ($rule, $action) use ($checkCallback) {
+                    //注意，这里的判断逻辑是如果checkCallback通过，即通过
+                    //如果不通过，那么如果是admin的话，也通过
+                    //只有都不通过，才不通过
+                    if ($checkCallback !== null && call_user_func($checkCallback)) {
                         return true;
                     }
                     foreach (Yii::$app->user->identity->userRoles as &$role) {

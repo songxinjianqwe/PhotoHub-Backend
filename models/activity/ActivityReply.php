@@ -18,21 +18,26 @@ use Yii;
  * @property Message $message
  * @property Activity $activity
  */
-class ActivityReply extends \yii\db\ActiveRecord
-{
+class ActivityReply extends \yii\db\ActiveRecord {
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'activity_reply';
+    }
+
+    public function fields() {
+        $fields = parent::fields();
+        unset($fields['message_id'],$fields['user_id']);
+        $fields['message'] = 'message';
+        $fields['user'] = 'user';
+        return $fields;
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['activity_id', 'message_id', 'user_id'], 'integer'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
@@ -44,8 +49,7 @@ class ActivityReply extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'activity_id' => 'Activity ID',
@@ -57,24 +61,21 @@ class ActivityReply extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUser()
-    {
+    public function getUser() {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getMessage()
-    {
+    public function getMessage() {
         return $this->hasOne(Message::className(), ['id' => 'message_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getActivity()
-    {
+    public function getActivity() {
         return $this->hasOne(Activity::className(), ['id' => 'activity_id']);
     }
 }

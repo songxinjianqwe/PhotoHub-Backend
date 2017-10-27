@@ -18,6 +18,13 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
+/**
+ * 
+ * 注意：所有包含message的实体（activity，activity_reply，moment）在增改删之前，都要先增改删对应的message
+ * 这一点由前端来保证
+ * Class MessageController
+ * @package app\controllers
+ */
 class MessageController extends BaseActiveController {
     public $modelClass = 'app\models\message\Message';
 
@@ -86,7 +93,7 @@ class MessageController extends BaseActiveController {
         $message->save();
         return Message::findOne($body['id']);
     }
-
+    
     /**
      * 批量更新images
      * 规定新增的只需要有一个url属性，不变的必须有id属性，修改的两个属性都要有，删除的不列出
@@ -112,16 +119,6 @@ class MessageController extends BaseActiveController {
                 foreach ($message->images as &$oldImg) {
                     //只要id相等，说明一定不是删除
                     if ($newImg['id'] === $oldImg->id) {
-                        //修改的情况
-                        if ($newImg['url'] !== null && $newImg['url'] !== $oldImg->url) {
-                            $image = new Image();
-                            $image->id = $newImg['id'];
-                            $image->message_id = $message->id;
-                            $image->url = $newImg['url'];
-                            Yii::info('修改image :' . $image->url);
-                            $image->update();
-                        }
-                        Yii::info('旧数组中去掉 id:' . $oldImg->id);
                         //这个数组里的元素都不会被删除
                         array_push($containedImages, $oldImg->id);
                     }
@@ -135,8 +132,8 @@ class MessageController extends BaseActiveController {
             }
         }
     }
-
-    /**
+    
+    /** 
      * 批量更新videos
      * @param $videos
      * @param $message
@@ -160,16 +157,6 @@ class MessageController extends BaseActiveController {
                 foreach ($message->videos as &$oldVideo) {
                     //只要id相等，说明一定不是删除
                     if ($newVideo['id'] === $oldVideo->id) {
-                        //修改的情况
-                        if ($newVideo['url'] !== null && $newVideo['url'] !== $oldVideo->url) {
-                            $video = new Video();
-                            $video->id = $newVideo['id'];
-                            $video->message_id = $message->id;
-                            $video->url = $newVideo['url'];
-                            Yii::info('修改video :' . $video->url);
-                            $video->update();
-                        }
-                        Yii::info('旧数组中去掉 id:' . $oldVideo->id);
                         //这个数组里的元素都不会被删除
                         array_push($containedVideos, $oldVideo->id);
                     }
@@ -183,7 +170,7 @@ class MessageController extends BaseActiveController {
             }
         }
     }
-
+    
     public function actionDelete() {
         $id = Yii::$app->request->get('id');
         $message = Message::findOne($id);
@@ -200,31 +187,6 @@ class MessageController extends BaseActiveController {
             $video->delete();
         }
         $message->delete();
-    }
-
-    //TODO
-    public function actionVote() {
-
-    }
-
-    //TODO
-    public function actionUnVote() {
-
-    }
-
-    //TODO
-    public function actionComment() {
-
-    }
-
-    //TODO
-    public function actionUnComment() {
-
-    }
-
-    //TODO
-    public function actionForward() {
-
     }
 }
 

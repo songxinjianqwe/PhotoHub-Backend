@@ -161,10 +161,10 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface{
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getRoles() {
+    public function getUserRoles() {
         return $this->hasMany(Role::className(), ['id' => 'role'])->viaTable('user_role', ['user' => 'id']);
     }
-
+    
     /**
      * @return \yii\db\ActiveQuery
      */

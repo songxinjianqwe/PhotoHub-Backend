@@ -11,48 +11,51 @@ use Yii;
  *
  * @property integer $id
  * @property string $create_time
- * @property integer $create_user_id
+ * @property integer $user_id
  * @property string $title
  * @property integer $message_id
  * @property integer $replies
  *
  * @property Message $message
- * @property User $createUser
+ * @property User $user
  * @property ActivityReply[] $activityReplies
  */
-class Activity extends \yii\db\ActiveRecord
-{
+class Activity extends \yii\db\ActiveRecord {
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'activity';
+    }
+
+    public function fields() {
+        $fields = parent::fields();
+        unset($fields['message_id']);
+        $fields['message'] = 'message';
+        return $fields;
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['create_time'], 'safe'],
-            [['create_user_id', 'message_id', 'replies'], 'integer'],
+            [['user_id', 'message_id', 'replies'], 'integer'],
             [['title'], 'string'],
             [['message_id'], 'exist', 'skipOnError' => true, 'targetClass' => Message::className(), 'targetAttribute' => ['message_id' => 'id']],
-            [['create_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['create_user_id' => 'id']],
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'create_time' => 'Create Time',
-            'create_user_id' => 'Create User ID',
+            'user_id' => 'User ID',
             'title' => 'Title',
             'message_id' => 'Message ID',
             'replies' => 'Replies',
@@ -62,24 +65,21 @@ class Activity extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getMessage()
-    {
+    public function getMessage() {
         return $this->hasOne(Message::className(), ['id' => 'message_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreateUser()
-    {
-        return $this->hasOne(User::className(), ['id' => 'create_user_id']);
+    public function getUser() {
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getActivityReplies()
-    {
+    public function getActivityReplies() {
         return $this->hasMany(ActivityReply::className(), ['activity_id' => 'id']);
     }
 }

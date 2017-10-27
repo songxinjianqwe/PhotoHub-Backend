@@ -45,10 +45,10 @@ class Moment extends \yii\db\ActiveRecord {
     public function fields() {
         $fields = parent::fields();
         Yii::info($fields);
-        unset($fields['user_id'], $fields['message_id'], $fields['album_id']);
+        unset($fields['user_id'], $fields['message_id']);
         $fields['user'] = 'user';
         $fields['message'] = 'message';
-        $fields['album'] = 'album';
+        $fields['tags'] = 'tags';
         return $fields;
     }
 
@@ -57,6 +57,7 @@ class Moment extends \yii\db\ActiveRecord {
      */
     public function rules() {
         return [
+            [['id'],'safe'],
             [['user_id','message_id'], 'required'],
             [['user_id', 'message_id', 'votes', 'comments', 'forwards', 'album_id'], 'integer'],
             [['album_id'], 'exist', 'skipOnError' => true, 'targetClass' => Album::className(), 'targetAttribute' => ['album_id' => 'id']],
