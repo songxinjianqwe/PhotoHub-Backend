@@ -36,7 +36,7 @@ $config = [
             'identityClass' => 'app\models\User',
             'enableSession' => false,
             'enableAutoLogin' => false,
-            'loginUrl' => ''
+            'loginUrl' => '',
         ],
         //Rest专用        
         'urlManager' => [
@@ -77,8 +77,9 @@ $config = [
                 'GET moments/hot' => 'message/hot',
                 //热门活动
                 'GET activities/hot' => 'activity/hot',
+                'GET users/<id:\d+>/feed' => 'feed/index',
                 // /<controller> 四种方法
-                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment','message','activity']],
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment', 'message', 'activity']],
             ],
         ],
         //日志

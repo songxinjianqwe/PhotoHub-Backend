@@ -63,8 +63,8 @@ class Tag extends \yii\db\ActiveRecord {
                 ]);
                 $deletedTypeTag->delete();
                 //TODO
-                $oldTag->reference_times--;
-                $oldTag->update();
+//                $oldTag->reference_times--;
+//                $oldTag->update();
             }
         }
     }
@@ -80,8 +80,8 @@ class Tag extends \yii\db\ActiveRecord {
             ]);
             $deletedTypeTag->delete();
             //TODO
-            $tag->reference_times--;
-            $tag->update();
+//            $tag->reference_times--;
+//            $tag->update();
         }
     }
 
@@ -127,8 +127,8 @@ class Tag extends \yii\db\ActiveRecord {
         } else {
             //如果存在则引用
             //TODO
-            $tagDO->reference_times++;
-            $tagDO->update();
+//            $tagDO->reference_times++;
+//            $tagDO->update();
 
             $typeTag = new $className();
             $typeTag->$propertyName = $typeId;

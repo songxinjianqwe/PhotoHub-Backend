@@ -10,32 +10,35 @@ namespace app\cache\service;
 
 
 use app\cache\RedisZSetManager;
+use app\models\follow\Follow;
+use app\models\moment\Moment;
+use Yii;
 
 class FeedService {
     private $manager;
 
-    /**
-     * @inheritDoc
-     */
     public function __construct() {
         $this->manager = new RedisZSetManager('feed');
     }
 
     public function addMoment($userId, $momentId) {
-        
+        Yii::info('FeedService::addMoment: userId' . $userId . '  momentId:' . $momentId);
+        $followers = Follow::find()->where(['followed_user_id' => $userId])->all();
+        foreach ($followers as $follower) {
+            $this->manager->addElement($momentId, time(), $follower->user_id);
+        }
     }
 
     public function removeMoment($userId, $momentId) {
-
+        Yii::info('FeedService::removeMoment: userId' . $userId . '  momentId:' . $momentId);
+        $followers = Follow::find()->where(['followed_user_id' => $userId])->all();
+        foreach ($followers as $follower) {
+            $this->manager->removeElement($momentId, $follower->user_id);
+        }
     }
 
-    public function follow($followUserId, $followedUserId) {
-
+    public function show($userId, $page, $per_page) {
+        $ids = $this->manager->indexDesc($page, $per_page, $userId);
+        return Moment::find()->where(['id' => $ids])->all();
     }
-
-    public function unFollow($followUserId, $followedUserId) {
-
-    }
-
-
 }

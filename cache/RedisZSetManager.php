@@ -21,26 +21,40 @@ class RedisZSetManager {
         $this->prefix = $prefix;
     }
 
+    public function getSetName($zsetKey) {
+        return $this->prefix . ($zsetKey != '' ? ('.' . $zsetKey) : (''));
+    }
+
     public function addElement($key, $score, $zsetKey = '') {
         //如果zsetKey不为空，那么zsetName为prefix.zsetkey
         //否则zsetName为$prefix
-        $zsetName = $this->prefix . $zsetKey !== '' ? '.' . $zsetKey : '';
-        Yii::$app->redis->zAdd($zsetName, $score, $key);
+        Yii::info('$this->prefix ' . $this->prefix);
+        Yii::info('$zsetkey ' . $zsetKey);
+        Yii::info('$key ' . $key);
+
+        Yii::info('$zsetName:' . $this->getSetName($zsetKey));
+        Yii::info('Yii::$app->redis->zAdd($zsetName, $score, $key)');
+        Yii::$app->redis->zadd($this->getSetName($zsetKey), $score, $key);
     }
 
     public function removeElement($key, $zsetKey = '') {
-        $zsetName = $this->prefix . $zsetKey !== '' ? '.' . $zsetKey : '';
-        Yii::$app->redis->zDelete($zsetName, $key);
+        Yii::info('Yii::$app->redis->zrem($zsetName, $key)');
+        Yii::info('$zsetName:' . $this->getSetName($zsetKey));
+        Yii::info('$key ' . $key);
+        Yii::$app->redis->zrem($this->getSetName($zsetKey), $key);
     }
 
     public function changeScore($key, $increment, $zsetKey = '') {
-        $zsetName = $this->prefix . $zsetKey !== '' ? '.' . $zsetKey : '';
-        Yii::$app->redis->zIncrBy($zsetName, $increment, $key);
+        Yii::info('Yii::$app->redis->zIncrBy($zsetName, $increment, $key)');
+        Yii::$app->redis->zincrby($this->getSetName($zsetKey), $increment, $key);
     }
 
-    public function indexDesc($page = 1, $per_page = 5, $zsetKey = '') {
-        $zsetName = $this->prefix . $zsetKey !== '' ? '.' . $zsetKey : '';
-        return Yii::$app->redis->zRevRange($zsetName, ($page - 1) * $per_page, $page * $per_page);
+    public function indexDesc($page, $per_page, $zsetKey = '') {
+        Yii::info('Yii::$app->redis->zRevRange($zsetName, ($page - 1) * $per_page, $page * $per_page)   ');
+        Yii::info('$page:' . $page);
+        Yii::info('$per_page:' . $per_page);
+        $data = Yii::$app->redis->zrevrange($this->getSetName($zsetKey), ($page - 1) * $per_page, $page * $per_page);
+        Yii::info('data:' . implode(';', $data));
+        return $data;
     }
-
 }

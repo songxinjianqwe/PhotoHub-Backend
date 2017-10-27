@@ -20,7 +20,11 @@ use yii\web\NotFoundHttpException;
 
 class MomentController extends BaseActiveController {
     public $modelClass = 'app\models\moment\Moment';
+    private $feedService;
 
+    public function init() {
+        $this->feedService = Yii::$container->get('app\cache\service\FeedService');
+    }
 
     /**
      * @return array
@@ -76,6 +80,8 @@ class MomentController extends BaseActiveController {
         } else {
             throw new BadRequestHttpException();
         }
+        Yii::info('增加moment');
+        $this->feedService->addMoment($moment->user_id, $moment->id);
         return $moment;
     }
 
@@ -105,7 +111,7 @@ class MomentController extends BaseActiveController {
         }
         return Moment::findOne($body['id']);
     }
-    
+
     /**
      * 同步更新tag-talent,feed
      * 注意删除message之后才能删除对应的moment
@@ -123,9 +129,10 @@ class MomentController extends BaseActiveController {
         $moment->delete();
         //删除对应的tag
         Tag::deleteTags($moment->tags, $moment->id, 'moment');
+        $this->feedService->removeMoment($moment->user_id, $moment->id);
     }
-    
-    public function actionHot(){
+
+    public function actionHot() {
         
     }
 }

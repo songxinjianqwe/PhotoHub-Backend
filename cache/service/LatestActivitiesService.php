@@ -9,6 +9,6 @@
 namespace app\cache\service;
 
 
-class LatestActivityService {
+class LatestActivitiesService {
 
 }
