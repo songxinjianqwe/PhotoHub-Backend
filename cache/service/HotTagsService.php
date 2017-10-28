@@ -12,13 +12,18 @@ namespace app\cache\service;
 use app\cache\RedisZSetManager;
 use app\models\page\PageVO;
 use app\models\tag\Tag;
+use app\util\DBUtil;
 use Yii;
 
 class HotTagsService {
     private $manager;
+    private $latestMomentsByTagService;
+    private $hotMomentsByTagService;
 
     public function __construct() {
         $this->manager = new RedisZSetManager('tag.hot');
+        $this->latestMomentsByTagService = Yii::$container->get('app\cache\service\LatestMomentsByTagService');
+        $this->hotMomentsByTagService = Yii::$container->get('app\cache\service\HotMomentsByTagService');
     }
 
     public function saveTag($tagName, $typeId, $tagType) {
@@ -37,6 +42,11 @@ class HotTagsService {
             $typeTag->$propertyName = $typeId;
             $typeTag->tag_id = $newTag->id;
             $typeTag->save();
+            //当新增的Tag属于Moment，那么会将新增的Moment加入
+            if ($tagType === 'moment') {
+                $this->latestMomentsByTagService->createMoment($typeId, $newTag->id);
+                $this->hotMomentsByTagService->createMoment($typeId, $newTag->id);
+            }
         } else {
             //如果存在则引用
             //引用数+1
@@ -45,6 +55,10 @@ class HotTagsService {
             $typeTag->$propertyName = $typeId;
             $typeTag->tag_id = $tagDO->id;
             $typeTag->save();
+            if ($tagType === 'moment') {
+                $this->latestMomentsByTagService->createMoment($typeId, $tagDO->id);
+                $this->hotMomentsByTagService->createMoment($typeId, $tagDO->id);
+            }
         }
     }
 
@@ -66,6 +80,10 @@ class HotTagsService {
                 $typeTag->tag_id = $newTagObj->id;
                 $typeTag->save();
                 Yii::info('新增TypeTag' . $typeTag->tag_id);
+                if ($tagType === 'moment') {
+                    $this->latestMomentsByTagService->createMoment($typeId, $newTagObj->id);
+                    $this->hotMomentsByTagService->createMoment($typeId, $newTagObj->id);
+                }
             } else {
                 foreach ($oldTags as $oldTag) {
                     //只要id相等，说明一定不是删除，是修改或不变
@@ -87,6 +105,11 @@ class HotTagsService {
                 ]);
                 $deletedTypeTag->delete();
                 $this->unReferTag($oldTag->id);
+
+                if ($tagType === 'moment') {
+                    $this->latestMomentsByTagService->removeMoment($typeId, $oldTag->id);
+                    $this->hotMomentsByTagService->removeMoment($typeId, $oldTag->id);
+                }
             }
         }
     }
@@ -102,6 +125,11 @@ class HotTagsService {
             ]);
             $deletedTypeTag->delete();
             $this->unReferTag($tag->id);
+
+            if ($tagType === 'moment') {
+                $this->latestMomentsByTagService->removeMoment($typeId, $tag->id);
+                $this->hotMomentsByTagService->removeMoment($typeId, $tag->id);
+            }
         }
     }
 
@@ -119,6 +147,6 @@ class HotTagsService {
 
     public function getHotTags($page, $per_page) {
         $pageDTO = $this->manager->indexDesc($page, $per_page);
-        return new PageVO(Tag::find()->where(['id' => $pageDTO->ids])->orderBy('id desc')->all(), $pageDTO->_meta);
+        return new PageVO(DBUtil::orderByField($pageDTO->ids,Tag::find()->where(['id' => $pageDTO->ids])->all(),'id'), $pageDTO->_meta);
     }
 }

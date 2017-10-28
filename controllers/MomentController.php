@@ -25,11 +25,17 @@ class MomentController extends BaseActiveController {
     private $feedService;
     private $hotTagsService;
     private $hotMomentsService;
-
+    private $latestMomentsByTagService;
+    private $hotMomentsByTagService;
+    private $tagTalentService;
+    
     public function init() {
         $this->feedService = Yii::$container->get('app\cache\service\FeedService');
         $this->hotTagsService = Yii::$container->get('app\cache\service\HotTagsService');
         $this->hotMomentsService = Yii::$container->get('app\cache\service\HotMomentsService');
+        $this->latestMomentsByTagService = Yii::$container->get('app\cache\service\LatestMomentsByTagService');
+        $this->hotMomentsByTagService = Yii::$container->get('app\cache\service\HotMomentsByTagService');
+        $this->tagTalentService = Yii::$container->get('app\cache\service\TagTalentService');
     }
 
     /**
@@ -38,7 +44,7 @@ class MomentController extends BaseActiveController {
     public function behaviors() {
         $behaviors = parent::behaviors();
         //允许GET /moments 和 GET /moments/{id}
-        $behaviors = parent::requireNone($behaviors, ['index', 'view','hot']);
+        $behaviors = parent::requireNone($behaviors, ['index', 'view', 'hot', 'latest-by-tag', 'hot-by-tag']);
         $behaviors = parent::requireAdminOrMySelf($behaviors, ['create', 'update']);
         return $behaviors;
     }
@@ -143,9 +149,11 @@ class MomentController extends BaseActiveController {
         }
         $moment->delete();
         //删除对应的tag
+        $referTimes = $this->hotMomentsService->getMomentScore($moment->id);
         $this->hotTagsService->deleteTags($moment->tags, $moment->id, 'moment');
         $this->feedService->removeMoment($moment->user_id, $moment->id);
         $this->hotMomentsService->removeMoment($moment->id);
+        $this->tagTalentService->removeMoment($moment,$referTimes);
     }
 
     public function actionHot() {
@@ -153,4 +161,19 @@ class MomentController extends BaseActiveController {
         $per_page = Yii::$app->request->get('per_page');
         return $this->hotMomentsService->show($page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
     }
+
+    public function actionLatestByTag() {
+        $id = Yii::$app->request->get('id');
+        $page = Yii::$app->request->get('page');
+        $per_page = Yii::$app->request->get('per_page');
+        return $this->latestMomentsByTagService->show($id, $page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
+    }
+
+    public function actionHotByTag() {
+        $id = Yii::$app->request->get('id');
+        $page = Yii::$app->request->get('page');
+        $per_page = Yii::$app->request->get('per_page');
+        return $this->hotMomentsByTagService->show($id, $page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
+    }
+
 }

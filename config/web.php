@@ -75,6 +75,10 @@ $config = [
                 'DELETE activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/delete',
                 //热门动态，分页显示
                 'GET moments/hot' => 'moment/hot',
+                //按Tag查询的热门动态
+                'GET moments/hot/by_tag/<id:\d+>' => 'moment/hot-by-tag',
+                //按Tag查询的最新动态
+                'GET moments/latest/by_tag/<id:\d+>' => 'moment/latest-by-tag',
                 //热门活动
                 'GET activities/hot' => 'activity/hot',
                 //最新活动
@@ -83,6 +87,8 @@ $config = [
                 'GET users/<id:\d+>/feed' => 'feed/index',
                 //热门标签
                 'GET tags/hot' => 'tag/hot',
+                //标签达人
+                'GET tags/talents/<id:\d+>' => 'tag/talent',
                 // /<controller> 四种方法
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment', 'message', 'activity']],
             ],

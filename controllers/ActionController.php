@@ -23,12 +23,15 @@ use yii\web\NotFoundHttpException;
 class ActionController extends BaseActiveController {
     public $modelClass = 'app\models\message\Message';
     private $hotMomentsService;
-
+    private $hotMomentsByTagService;
+    private $tagTalentService;
     /**
      * @inheritDoc
      */
     public function init() {
         $this->hotMomentsService = Yii::$container->get('app\cache\service\HotMomentsService');
+        $this->hotMomentsByTagService = Yii::$container->get('app\cache\service\HotMomentsByTagService');
+        $this->tagTalentService = Yii::$container->get('app\cache\service\TagTalentService');
     }
 
     /**
@@ -83,6 +86,10 @@ class ActionController extends BaseActiveController {
         //如果是给动态点赞，那么会影响到该动态的热门程度
         if ($moment !== null) {
             $this->hotMomentsService->referMoment($moment->id);
+            foreach ($moment->tags as $tag) {
+                $this->hotMomentsByTagService->referMoment($moment->id, $tag->id);
+            }
+            $this->tagTalentService->referMoment($moment);
         }
         return $vote;
     }
@@ -95,6 +102,10 @@ class ActionController extends BaseActiveController {
         ]);
         if ($moment !== null) {
             $this->hotMomentsService->unReferMoment($moment->id);
+            foreach ($moment->tags as $tag) {
+                $this->hotMomentsByTagService->unReferMoment($moment->id, $tag->id);
+            }
+            $this->tagTalentService->unReferMoment($moment);
         }
     }
 
@@ -119,6 +130,10 @@ class ActionController extends BaseActiveController {
         ]);
         if ($moment !== null) {
             $this->hotMomentsService->referMoment($moment->id);
+            foreach ($moment->tags as $tag) {
+                $this->hotMomentsByTagService->referMoment($moment->id, $tag->id);
+            }
+            $this->tagTalentService->referMoment($moment);
         }
         return $comment;
     }
@@ -131,6 +146,10 @@ class ActionController extends BaseActiveController {
         ]);
         if ($moment !== null) {
             $this->hotMomentsService->unReferMoment($moment->id);
+            foreach ($moment->tags as $tag) {
+                $this->hotMomentsByTagService->unReferMoment($moment->id, $tag->id);
+            }
+            $this->tagTalentService->unReferMoment($moment);
         }
     }
 
@@ -155,6 +174,10 @@ class ActionController extends BaseActiveController {
         ]);
         if ($moment !== null) {
             $this->hotMomentsService->referMoment($moment->id);
+            foreach ($moment->tags as $tag) {
+                $this->hotMomentsByTagService->referMoment($moment->id, $tag->id);
+            }
+            $this->tagTalentService->referMoment($moment);
         }
         return $forward;
     }

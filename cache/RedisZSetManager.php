@@ -35,20 +35,21 @@ class RedisZSetManager {
         Yii::info('$key ' . $key);
 
         Yii::info('$zsetName:' . $this->getSetName($zsetKey));
-        Yii::info('Yii::$app->redis->zAdd($zsetName, $score, $key)');
         Yii::$app->redis->zadd($this->getSetName($zsetKey), $score, $key);
     }
 
     public function removeElement($key, $zsetKey = '') {
-        Yii::info('Yii::$app->redis->zrem($zsetName, $key)');
         Yii::info('$zsetName:' . $this->getSetName($zsetKey));
         Yii::info('$key ' . $key);
         Yii::$app->redis->zrem($this->getSetName($zsetKey), $key);
     }
 
     public function changeScore($key, $increment, $zsetKey = '') {
-        Yii::info('Yii::$app->redis->zIncrBy($zsetName, $increment, $key)');
         Yii::$app->redis->zincrby($this->getSetName($zsetKey), $increment, $key);
+    }
+
+    public function getScore($key, $zsetKey = '') {
+        return Yii::$app->redis->zscore($this->getSetName($zsetKey), $key);
     }
 
     public function getTotalCount($zsetKey = '') {
@@ -56,7 +57,6 @@ class RedisZSetManager {
     }
 
     public function indexDesc($page, $per_page, $zsetKey = '') {
-        Yii::info('Yii::$app->redis->zRevRange($zsetName, ($page - 1) * $per_page, $page * $per_page)   ');
         Yii::info('$page:' . $page);
         Yii::info('$per_page:' . $per_page);
         $ids = Yii::$app->redis->zrevrange($this->getSetName($zsetKey), ($page - 1) * $per_page, $page * $per_page - 1);

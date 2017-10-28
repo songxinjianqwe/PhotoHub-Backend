@@ -13,6 +13,8 @@ use app\controllers\base\BaseActiveController;
 use app\models\activity\ActivityReply;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\rest\CreateAction;
+use yii\web\NotFoundHttpException;
 
 /**
  *
@@ -57,15 +59,22 @@ class ActivityReplyController extends BaseActiveController {
             'query' => ActivityReply::find()->where(['activity_id' => $activityId])
         ]);
     }
-    //TODO
-    public function actionCreate(){
-        
+
+
+    public function actionCreate() {
+        $action = new CreateAction('create', $this, ['modelClass' => $this->modelClass]);
+        $model = $action->run();
+        $this->hotActivitiesService->createReply($model->activity_id);
+        return $model;
     }
     
-    //TODO
-    public function actionDelete(){
-        
+    public function actionDelete() {
+        $id = Yii::$app->request->get('id');
+        $activity = ActivityReply::findOne($id);
+        if ($activity === null) {
+            throw new NotFoundHttpException('id not found');
+        }
+        $activity->delete();
+        $this->hotActivitiesService->removeReply($activity->activity_id);
     }
-
-
 }

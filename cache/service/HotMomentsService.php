@@ -12,6 +12,7 @@ namespace app\cache\service;
 use app\cache\RedisZSetManager;
 use app\models\moment\Moment;
 use app\models\page\PageVO;
+use app\util\DBUtil;
 
 class HotMomentsService {
     private $manager;
@@ -36,8 +37,12 @@ class HotMomentsService {
         $this->manager->changeScore($momentId, -1);
     }
 
+    public function getMomentScore($momentId) {
+        return $this->manager->getScore($momentId);
+    }
+
     public function show($page, $per_page) {
         $pageDTO = $this->manager->indexDesc($page, $per_page);
-        return new PageVO(Moment::find()->where(['id' => $pageDTO->ids])->orderBy('id desc')->all(), $pageDTO->_meta);
+        return new PageVO(DBUtil::orderByField($pageDTO->ids,Moment::find()->where(['id' => $pageDTO->ids])->all(),'id'), $pageDTO->_meta);
     }
 }

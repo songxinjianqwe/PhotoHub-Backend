@@ -24,7 +24,6 @@ lists(queue): push/sub提醒,...
 # 需求对应的数据结构与业务逻辑
 1. feed流：基于zset（一系列的zset）
 每个用户有一个收feed的zset  redis的key为**feed.user_id**
-(创建用户时，添加一个zset，key为feed.username)
 
 某用户发布动态：遍历粉丝列表，将moment_id插入到每个粉丝的收feed，值为moment_id，score为时间戳(秒/毫秒)
 某用户删除动态：遍历粉丝列表，从每个粉丝的收feed中删除对应的moment_id
@@ -57,21 +56,21 @@ redis的key为**activity.latest**   **activity.hot**
 每次删除对某个活动的回复时，会减少activity.hot中对应活动的score
 
 5. 每个标签对应的最新/热门动态（一系列的zset）
-**tag.moment.hot.tag_id**
-**tag.moment.latest.tag_id**
-创建标签时，会添加两个zset
+**moment.hot.tag.tag_id**
+**moment.latest.tag.tag_id**
+
 某用户发布动态时，会将moment_id插入到zset中
 某用户删除动态：从zset中删除对应的moment_id
 
 某用户点赞转发评论某动态：在zset中将对应的动态的score+1
 某用户取消点赞，取消转发某动态：在zset中将对应的动态的score-1
+
 6. 标签达人（一系列zset）
 **tag.talent.tag_id**
 
-创建标签时，会添加一个zset
-
 某用户点赞转发评论某动态：搜索该动态对应的标签，遍历标签，将标签对应的zset中的用户的score+1，如果没有该用户，则插入该用户。
-某用户取消点赞，搜索该动态对应的标签，遍历标签，将标签对应的zset中的用户的score-1   
+某用户取消点赞、取消评论，搜索该动态对应的标签，遍历标签，将标签对应的zset中的用户的score-1   
+某用户删除动态：从热门动态中搜索该动态的score，搜索该动态对应的标签，遍历标签，将标签对应的zset中的用户的score减去之前查到的score
 
 # 示例
 //实例化redis
