@@ -134,3 +134,7 @@ Controller要继承自ActiveController，并且添加一个public属性$modelCla
 ```
 4. 形成映射
 http://localhost:8080/users -> app\controllers\UserController -> app\modesl\User -> Table user
+
+
+模糊搜索标签
+查询一条message的点赞评论转发情况

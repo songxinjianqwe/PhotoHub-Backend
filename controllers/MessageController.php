@@ -10,6 +10,9 @@ namespace app\controllers;
 
 
 use app\controllers\base\BaseActiveController;
+use app\models\message\action\Comment;
+use app\models\message\action\Forward;
+use app\models\message\action\Vote;
 use app\models\message\Image;
 use app\models\message\Message;
 use app\models\message\Video;
@@ -19,7 +22,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
 /**
- * 
+ *
  * 注意：所有包含message的实体（activity，activity_reply，moment）在增改删之前，都要先增改删对应的message
  * 这一点由前端来保证
  * Class MessageController
@@ -39,6 +42,7 @@ class MessageController extends BaseActiveController {
 
     public function behaviors() {
         $behaviors = parent::behaviors();
+        $behaviors = parent::requireNone($behaviors, ['vote', 'comment', 'forward']);
         $behaviors = parent::requireAdminOrMySelf($behaviors, ['create', 'update']);
         return $behaviors;
     }
@@ -93,7 +97,7 @@ class MessageController extends BaseActiveController {
         $message->save();
         return Message::findOne($body['id']);
     }
-    
+
     /**
      * 批量更新images
      * 规定新增的只需要有一个url属性，不变的必须有id属性，修改的两个属性都要有，删除的不列出
@@ -132,8 +136,8 @@ class MessageController extends BaseActiveController {
             }
         }
     }
-    
-    /** 
+
+    /**
      * 批量更新videos
      * @param $videos
      * @param $message
@@ -170,7 +174,7 @@ class MessageController extends BaseActiveController {
             }
         }
     }
-    
+
     public function actionDelete() {
         $id = Yii::$app->request->get('id');
         $message = Message::findOne($id);

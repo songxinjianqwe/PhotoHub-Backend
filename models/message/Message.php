@@ -40,6 +40,9 @@ class Message extends \yii\db\ActiveRecord {
         $fields = parent::fields();
         $fields['images'] = 'images';
         $fields['videos'] = 'videos';
+        $fields['votes'] = 'votes';
+        $fields['comments'] = 'comments';
+        $fields['forwards'] = 'forwards';
         return $fields;
     }
 

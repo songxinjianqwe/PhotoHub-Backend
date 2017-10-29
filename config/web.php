@@ -68,6 +68,7 @@ $config = [
                 'POST messages/<message_id:\d+>/comment' => 'action/comment',
                 'DELETE messages/<message_id:\d+>/comment/<id:\d+>' => 'action/un-comment',
                 'POST messages/<message_id:\d+>/forward' => 'action/forward',
+                
                 //活动回复
                 'GET activities/<activity_id:\d+>/replies' => 'activity-reply/index',
                 'GET activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/view',
@@ -89,6 +90,8 @@ $config = [
                 'GET tags/hot' => 'tag/hot',
                 //标签达人
                 'GET tags/talents/<id:\d+>' => 'tag/talent',
+                //模糊搜索
+                'GET /tags/search' => 'tag/search',
                 // /<controller> 四种方法
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment', 'message', 'activity']],
             ],

@@ -34,6 +34,7 @@ class Vote extends \yii\db\ActiveRecord
     {
         return [
             [['message_id', 'user_id', 'create_time'], 'integer'],
+            [['create_time'], 'safe'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
             [['message_id'], 'exist', 'skipOnError' => true, 'targetClass' => Message::className(), 'targetAttribute' => ['message_id' => 'id']],
         ];
