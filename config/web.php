@@ -45,35 +45,43 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 //登录注销
-                'POST tokens' => 'token/login',
-                'DELETE tokens' => 'token/logout',
+                'POST tokens' => 'token/create',
+                'DELETE tokens' => 'token/delete',
+                'OPTIONS tokens' => 'token/options',
+                'GET tokens/cos' => 'token/cos',
+                'OPTIONS tokens/cos' => 'token/options',
+                
                 //关注分组
                 'GET users/<user_id:\d+>/follow_groups' => 'follow-group/index',
                 'GET users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/view',
                 'POST users/<user_id:\d+>/follow_groups' => 'follow-group/create',
                 'PUT users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/update',
                 'DELETE users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/delete',
+                'OPTIONS users/<user_id:\d+>/follow_groups' => 'follow-group/options',
+                
                 //关注
                 'POST users/<user_id:\d+>/follows' => 'follow/create',
                 'DELETE users/<user_id:\d+>/follows/<id:\d+>' => 'follow/delete',
+                'OPTIONS users/<user_id:\d+>/follows' => 'follow/options',
                 //相册
                 'GET users/<user_id:\d+>/albums' => 'album/index',
                 'GET users/<user_id:\d+>/albums/<id:\d+>' => 'album/view',
                 'POST users/<user_id:\d+>/albums' => 'album/create',
                 'PUT users/<user_id:\d+>/albums/<id:\d+>' => 'album/update',
                 'DELETE users/<user_id:\d+>/albums/<id:\d+>' => 'album/delete',
+                'OPTIONS users/<user_id:\d+>/albums' => 'album/options',
                 //点赞评论转发
                 'POST messages/<message_id:\d+>/vote' => 'action/vote',
                 'DELETE messages/<message_id:\d+>/vote/<id:\d+>' => 'action/un-vote',
                 'POST messages/<message_id:\d+>/comment' => 'action/comment',
                 'DELETE messages/<message_id:\d+>/comment/<id:\d+>' => 'action/un-comment',
                 'POST messages/<message_id:\d+>/forward' => 'action/forward',
-                
                 //活动回复
                 'GET activities/<activity_id:\d+>/replies' => 'activity-reply/index',
                 'GET activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/view',
                 'POST activities/<activity_id:\d+>/replies' => 'activity-reply/create',
                 'DELETE activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/delete',
+                'OPTIONS activities/<activity_id:\d+>/replies' => 'activity-reply/options',
                 //热门动态，分页显示
                 'GET moments/hot' => 'moment/hot',
                 //按Tag查询的热门动态
@@ -86,6 +94,7 @@ $config = [
                 'GET activities/latest' => 'activity/latest',
                 //Feed
                 'GET users/<id:\d+>/feed' => 'feed/index',
+                'OPTIONS users/<id:\d+>/feed' => 'feed/options',
                 //热门标签
                 'GET tags/hot' => 'tag/hot',
                 //标签达人

@@ -36,6 +36,7 @@ class Album extends \yii\db\ActiveRecord {
         return $fields;
     }
 
+
     /**
      * @inheritdoc
      */

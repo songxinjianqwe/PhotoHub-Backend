@@ -12,15 +12,14 @@ namespace app\util;
 use Yii;
 
 class DBUtil {
-    public static function orderByField($raw, $dbResult,$fieldName) {
-        Yii::info('数组长度为'.count($dbResult));
+    public static function orderByField($raw, $dbResult, $fieldName) {
         $result = array();
-        foreach ($dbResult as $item) {
-            $result[array_search($item[$fieldName], $raw)] = $item;
-        }
-        Yii::info('DBUtil');
-        foreach($result as $r){
-            Yii::info($r->id);
+        foreach ($raw as $rawId) {
+            foreach ($dbResult as $item) {
+                if ($item[$fieldName] == $rawId) {
+                    array_push($result, $item);
+                }
+            }
         }
         return $result;
     }

@@ -38,8 +38,6 @@ class Message extends \yii\db\ActiveRecord {
      */
     public function fields() {
         $fields = parent::fields();
-        $fields['images'] = 'images';
-        $fields['videos'] = 'videos';
         $fields['votes'] = 'votes';
         $fields['comments'] = 'comments';
         $fields['forwards'] = 'forwards';
@@ -83,19 +81,6 @@ class Message extends \yii\db\ActiveRecord {
         return $this->hasMany(Forward::className(), ['message_id' => 'id']);
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getImages() {
-        return $this->hasMany(Image::className(), ['message_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getVideos() {
-        return $this->hasMany(Video::className(), ['message_id' => 'id']);
-    }
 
     /**
      * @return \yii\db\ActiveQuery

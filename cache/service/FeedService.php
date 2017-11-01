@@ -30,6 +30,8 @@ class FeedService {
         foreach ($followers as $follower) {
             $this->manager->addElement($momentId, time(), $follower->user_id);
         }
+        //除了给关注了自己的人发，也给自己发
+        $this->manager->addElement($momentId, time(),$userId);
     }
     
     public function removeMoment($userId, $momentId) {

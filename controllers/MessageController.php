@@ -57,34 +57,15 @@ class MessageController extends BaseActiveController {
         $message->text = $body['text'];
         $message->user_id = Yii::$app->user->identity->getId();
         if ($message->save()) {
-            foreach ($body['images'] as $img) {
-                $image = new Image();
-                $image->message_id = $message->id;
-                $image->url = $img;
-                $image->save();
-            }
-            foreach ($body['videos'] as $vdo) {
-                $video = new Video();
-                $video->message_id = $message->id;
-                $video->url = $vdo;
-                $video->save();
-            }
+            return $message;
         } elseif (!$message->hasErrors()) {
             throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
         }
-        return $message;
     }
-
-
+    
     public function actionUpdate() {
         $body = Yii::$app->request->post();
         Yii::info($body);
-        if ($body['images'] === null) {
-            $body['images'] = [];
-        }
-        if ($body['videos'] === null) {
-            $body['videos'] = [];
-        }
 
         $message = Message::findOne($body['id']);
         if ($message === null) {
@@ -92,87 +73,8 @@ class MessageController extends BaseActiveController {
         }
         //先赋值text
         $message->text = $body['text'];
-        self::updateImages($body['images'], $message);
-        self::updateVideos($body['videos'], $message);
-        $message->save();
-        return Message::findOne($body['id']);
-    }
-
-    /**
-     * 批量更新images
-     * 规定新增的只需要有一个url属性，不变的必须有id属性，修改的两个属性都要有，删除的不列出
-     * @param $images
-     * @param $message
-     */
-    private function updateImages($images, $message) {
-        Yii::info('新的images:');
-        foreach ($images as $img) {
-            Yii::info($img);
-        }
-        Yii::info('旧的images:' . implode(";", $message->images));
-        $containedImages = [];
-        foreach ($images as $newImg) {
-            //新增的情况
-            if ($newImg['id'] === null) {
-                $image = new Image();
-                $image->message_id = $message->id;
-                $image->url = $newImg['url'];
-                Yii::info('保存新image  :' . $image->url);
-                $image->save();
-            } else {
-                foreach ($message->images as &$oldImg) {
-                    //只要id相等，说明一定不是删除
-                    if ($newImg['id'] === $oldImg->id) {
-                        //这个数组里的元素都不会被删除
-                        array_push($containedImages, $oldImg->id);
-                    }
-                }
-            }
-        }
-        foreach ($message->images as &$img) {
-            if (!in_array($img->id, $containedImages)) {
-                Yii::info('删除image: id:' . $img->id);
-                $img->delete();
-            }
-        }
-    }
-
-    /**
-     * 批量更新videos
-     * @param $videos
-     * @param $message
-     */
-    private function updateVideos($videos, $message) {
-        Yii::info('新的videos:');
-        foreach ($videos as $video) {
-            Yii::info($video);
-        }
-        Yii::info('旧的videos:' . implode(";", $message->videos));
-        $containedVideos = [];
-        foreach ($videos as $newVideo) {
-            //新增的情况
-            if ($newVideo['id'] === null) {
-                $video = new Video();
-                $video->message_id = $message->id;
-                $video->url = $newVideo['url'];
-                Yii::info('保存新video  :' . $video->url);
-                $video->save();
-            } else {
-                foreach ($message->videos as &$oldVideo) {
-                    //只要id相等，说明一定不是删除
-                    if ($newVideo['id'] === $oldVideo->id) {
-                        //这个数组里的元素都不会被删除
-                        array_push($containedVideos, $oldVideo->id);
-                    }
-                }
-            }
-        }
-        foreach ($message->videos as &$video) {
-            if (!in_array($video->id, $containedVideos)) {
-                Yii::info('删除video: id:' . $video->id);
-                $video->delete();
-            }
-        }
+        $message->update();
+        return $message;
     }
 
     public function actionDelete() {
@@ -183,12 +85,6 @@ class MessageController extends BaseActiveController {
         }
         if ($message->user_id != Yii::$app->user->identity->getId()) {
             throw new ForbiddenHttpException();
-        }
-        foreach ($message->images as $img) {
-            $img->delete();
-        }
-        foreach ($message->videos as $video) {
-            $video->delete();
         }
         $message->delete();
     }

@@ -61,7 +61,7 @@ class RedisZSetManager {
         Yii::info('$per_page:' . $per_page);
         $ids = Yii::$app->redis->zrevrange($this->getSetName($zsetKey), ($page - 1) * $per_page, $page * $per_page - 1);
         Yii::info('ids:' . implode(';', $ids));
-
+        
         $totalCount = $this->getTotalCount($zsetKey);
         $pageCount = ceil($totalCount / $per_page);
         return new PageDTO($ids, new PageInfo(intval($totalCount), $pageCount, intval($page), intval(min($per_page, $totalCount))));

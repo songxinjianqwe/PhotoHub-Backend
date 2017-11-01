@@ -53,6 +53,14 @@ class AlbumController extends BaseActiveController {
 
     public function actionIndex() {
         $id = Yii::$app->request->get('user_id');
+        $per_page = Yii::$app->request->get('per-page');
+        if ($per_page !== null && $per_page == 0) {
+            return Yii::createObject([
+            'class' => ActiveDataProvider::className(),
+            'pagination' => false,
+            'query' => Album::find()->where(['user_id' => $id])
+        ]);
+        }
         return Yii::createObject([
             'class' => ActiveDataProvider::className(),
             'query' => Album::find()->where(['user_id' => $id])

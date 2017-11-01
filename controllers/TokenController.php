@@ -8,12 +8,14 @@
 
 namespace app\controllers;
 
+use app\controllers\base\BaseActiveController;
 use app\models\user\LoginDTO;
 use app\models\user\LoginResult;
 use app\models\user\User;
 use app\security\JWTAuth;
 use yii\filters\ContentNegotiator;
 use yii\filters\Cors;
+use yii\rest\ActiveController;
 use yii\rest\Controller;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
@@ -30,43 +32,30 @@ use yii\web\UnauthorizedHttpException;
  * Class TokenController
  * @package app\controllers
  */
-class TokenController extends Controller {
+class TokenController extends BaseActiveController {
+    public $modelClass = '';
     private $tokenManager;
 
     public function init() {
         $this->tokenManager = Yii::$container->get('app\security\TokenManager');
     }
 
+    public function actions() {
+        $actions = parent::actions();
+        unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
+        Yii::info($actions);
+        return $actions;
+    }
+
     public function behaviors() {
         $behaviors = parent::behaviors();
-        unset($behaviors ['authenticator']);
-        //添加CORS支持
-        $behaviors ['corsFilter'] = [
-            'class' => Cors:: className(),
-            'cors' => [
-                'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Allow-Credentials' => true,
-            ],
-        ];
-        $behaviors['authenticator'] = [
-            'class' => JWTAuth::className(),
-        ];
-        //除了这些action其他都会经过Filter
-        $behaviors['authenticator']['except'] = ['login'];
-        $behaviors['contentNegotiator'] = [
-            'class' => ContentNegotiator::className(),
-            'formats' => [
-                'application/json' => Response::FORMAT_JSON,
-            ],
-        ];
+        $behaviors = parent::requireNone($behaviors, ['create']);
         return $behaviors;
     }
 
     //没写rules就不能用load()
     //你调用 save()、insert()、update() 这三个方法时，会自动调用yii\base\Model::validate()方法
-    public function actionLogin() {
+    public function actionCreate() {
         Yii::info('开始进行登录认证');
         $loginDTO = new LoginDTO();
         Yii::info(['LoginDTO' => Yii::$app->request->post()]);
@@ -90,8 +79,22 @@ class TokenController extends Controller {
         return new LoginResult($user->id, $user->username, $this->tokenManager->createToken($user->username));
     }
 
-    public function actionLogout() {
+    public function actionDelete() {
         Yii::info('删除token :' . Yii::$app->user->identity->username);
         $this->tokenManager->deleteToken(Yii::$app->user->identity->username);
+    }
+
+    public function actionCos() {
+        $appid = "1252651195";
+        $bucket = "photohub";
+        $secret_id = "AKIDhMNH0bdMTOLBUfhXEoCXh8QbaO1Xm1yo";
+        $secret_key = "mRziJo7E9uTq10ngOvHRPCnDRYYMyOqD";
+        $expired = time() + 3600;
+        $current = time();
+        $rdm = rand();
+        $multi_effect_signature = 'a=' . $appid . '&b=' . $bucket . '&k=' . $secret_id . '&e=' . $expired . '&t=' . $current . '&r=' . $rdm . '&f=';
+        $result = base64_encode(hash_hmac('SHA1', $multi_effect_signature, $secret_key, true) . $multi_effect_signature);
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        return $result;
     }
 }
