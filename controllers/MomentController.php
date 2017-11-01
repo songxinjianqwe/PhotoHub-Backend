@@ -158,21 +158,21 @@ class MomentController extends BaseActiveController {
 
     public function actionHot() {
         $page = Yii::$app->request->get('page');
-        $per_page = Yii::$app->request->get('per_page');
+        $per_page = Yii::$app->request->get('per-page');
         return $this->hotMomentsService->show($page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
     }
 
     public function actionLatestByTag() {
         $id = Yii::$app->request->get('id');
         $page = Yii::$app->request->get('page');
-        $per_page = Yii::$app->request->get('per_page');
+        $per_page = Yii::$app->request->get('per-page');
         return $this->latestMomentsByTagService->show($id, $page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
     }
 
     public function actionHotByTag() {
         $id = Yii::$app->request->get('id');
         $page = Yii::$app->request->get('page');
-        $per_page = Yii::$app->request->get('per_page');
+        $per_page = Yii::$app->request->get('per-page');
         return $this->hotMomentsByTagService->show($id, $page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
     }
 

@@ -100,7 +100,8 @@ $config = [
                 //标签达人
                 'GET tags/talents/<id:\d+>' => 'tag/talent',
                 //模糊搜索
-                'GET /tags/search' => 'tag/search',
+                'GET tags/search' => 'tag/search',
+                'GET users/<username:\w+>/duplication' => 'user/username-duplicated',
                 // /<controller> 四种方法
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment', 'message', 'activity']],
             ],

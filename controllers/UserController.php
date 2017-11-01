@@ -19,6 +19,7 @@ use app\models\user\User;
 use Yii;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
+use yii\web\Response;
 
 class UserController extends BaseActiveController {
     public $modelClass = 'app\models\user\User';
@@ -34,7 +35,7 @@ class UserController extends BaseActiveController {
     public function behaviors() {
         $behaviors = parent::behaviors();
         //访问 POST /users不需要任何权限
-        $behaviors = parent::requireNone($behaviors, ['create']);
+        $behaviors = parent::requireNone($behaviors, ['create','username-duplicated']);
         //访问/users 需要管理员权限
         $behaviors = parent::requireAdmin($behaviors, ['index']);
         //修改用户信息 需要管理员或本人权限
@@ -53,7 +54,7 @@ class UserController extends BaseActiveController {
         unset($actions['create']);
         return $actions;
     }
-
+//    public function action
     /**
      * 注册
      */
@@ -108,10 +109,17 @@ class UserController extends BaseActiveController {
                 $fol->save();
                 
                 $followedUser = User::findOne($followedUserId);
-                $followedUser->followers++;
                 $followedUser->update();
             }
         }
         return $user;
+    }
+    
+    
+    public function  actionUsernameDuplicated(){
+        $username = Yii::$app->request->get('username');
+        $user = User::findOne(['username' => $username]);
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        return $user !== null ? "true" : "false";
     }
 }
