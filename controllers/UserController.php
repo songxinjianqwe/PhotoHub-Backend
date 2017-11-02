@@ -62,7 +62,7 @@ class UserController extends BaseActiveController {
         unset($actions['create']);
         return $actions;
     }
-//    public function action
+    
     /**
      * 注册
      */
