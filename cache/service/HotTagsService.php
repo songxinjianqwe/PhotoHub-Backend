@@ -12,6 +12,7 @@ namespace app\cache\service;
 use app\cache\RedisZSetManager;
 use app\models\page\PageVO;
 use app\models\tag\Tag;
+use app\models\tag\UserTag;
 use app\util\DBUtil;
 use Yii;
 
@@ -25,7 +26,18 @@ class HotTagsService {
         $this->latestMomentsByTagService = Yii::$container->get('app\cache\service\LatestMomentsByTagService');
         $this->hotMomentsByTagService = Yii::$container->get('app\cache\service\HotMomentsByTagService');
     }
-
+    
+    public function saveTags($tagIds,$userId){
+        foreach($tagIds as $tagId){
+            $userTag = new UserTag();
+            $userTag->user_id = $userId;
+            $userTag->tag_id = $tagId;
+            $userTag->save();
+            //用户关注标签会影响标签的热度
+            $this->manager->changeScore($tagId, 1);
+        }    
+    }
+    
     public function saveTag($tagName, $typeId, $tagType) {
         $tagDO = Tag::findOne(['name' => $tagName]);
         $className = '\app\models\tag\\' . ucwords($tagType) . 'Tag';

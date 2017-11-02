@@ -50,16 +50,16 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface{
     public static function tableName() {
         return 'user';
     }
-
+    
     /**
      * @inheritdoc
      */
     public function rules() {
         return [
             [['username', 'password'], 'required'],
-            [['username', 'password', 'avatar'], 'string'],
+            [['username', 'password', 'avatar','introduction'], 'string'],
             [['reg_time'], 'safe'],
-            [['followers', 'default_album_id', 'default_follow_group_id'], 'integer'],
+            [['default_album_id', 'default_follow_group_id'], 'integer'],
             [['default_follow_group_id'], 'exist', 'skipOnError' => true, 'targetClass' => FollowGroup::className(), 'targetAttribute' => ['default_follow_group_id' => 'id']],
             [['default_album_id'], 'exist', 'skipOnError' => true, 'targetClass' => Album::className(), 'targetAttribute' => ['default_album_id' => 'id']],
         ];
@@ -75,9 +75,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface{
             'password' => 'Password',
             'reg_time' => 'Reg Time',
             'avatar' => 'Avatar',
-            'followers' => 'Followers',
             'default_album_id' => 'Default Album ID',
             'default_follow_group_id' => 'Default Follow Group ID',
+            'introduction' => 'Introduction',
         ];
     }
 

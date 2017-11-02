@@ -99,6 +99,8 @@ $config = [
                 'GET tags/hot' => 'tag/hot',
                 //标签达人
                 'GET tags/talents/<id:\d+>' => 'tag/talent',
+                'POST tags/talents/batch' => 'tag/talent-batch',
+                'OPTIONS tags/talents/batch' => 'tag/options',
                 //模糊搜索
                 'GET tags/search' => 'tag/search',
                 'GET users/<username:\w+>/duplication' => 'user/username-duplicated',

@@ -23,6 +23,14 @@ use yii\web\Response;
 
 class UserController extends BaseActiveController {
     public $modelClass = 'app\models\user\User';
+    private $hotTagsService;
+
+    /**
+     * @inheritDoc
+     */
+    public function init() {
+        $this->hotTagsService = Yii::$container->get('app\cache\service\HotTagsService');
+    }
 
     /**
      * 在这里对认证和授权进行限制
@@ -91,13 +99,11 @@ class UserController extends BaseActiveController {
         $user->default_follow_group_id = $followGroup->id;
         $user->update();
         $user->password = '';
-
+        
         //保存用户的tags
         $tags = $body['tags'];
         if ($tags !== null) {
-            foreach ($tags as $tag) {
-                Tag::saveTag($tag,$user->id,"user");
-            }
+            $this->hotTagsService->saveTags($tags,$user->id);
         }
         
         $follows = $body['follows'];
@@ -106,10 +112,8 @@ class UserController extends BaseActiveController {
                 $fol = new Follow();
                 $fol->followed_user_id = $followedUserId;
                 $fol->group_id = $user->default_follow_group_id;
+                $fol->user_id = $user->id;
                 $fol->save();
-                
-                $followedUser = User::findOne($followedUserId);
-                $followedUser->update();
             }
         }
         return $user;

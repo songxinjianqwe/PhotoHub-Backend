@@ -30,7 +30,7 @@ class TagController extends BaseActiveController {
 
     public function behaviors() {
         $behaviors = parent::behaviors();
-        $behaviors = parent::requireNone($behaviors, ['hot', 'talent', 'search']);
+        $behaviors = parent::requireNone($behaviors, ['hot', 'talent', 'search','talent-batch']);
         return $behaviors;
     }
 
@@ -64,5 +64,15 @@ class TagController extends BaseActiveController {
         $page = Yii::$app->request->get('page');
         $per_page = Yii::$app->request->get('per-page');
         return $this->tagTalentService->show($tagId, $page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
+    }
+    
+    public function actionTalentBatch(){
+        $tagIds = Yii::$app->request->bodyParams['tagIds'];
+        $result = array();
+        foreach($tagIds as $tagId){
+            $tag = Tag::findOne($tagId);
+            $result[$tag->name] = $this->tagTalentService->show($tagId,PageConstant::page,PageConstant::per_page)->items;
+        }
+        return $result;
     }
 }
