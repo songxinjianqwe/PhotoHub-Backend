@@ -17,21 +17,25 @@ use Yii;
  * @property User $user
  * @property Message $message
  */
-class Vote extends \yii\db\ActiveRecord
-{
+class Vote extends \yii\db\ActiveRecord {
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'vote';
+    }
+
+    public function fields() {
+        $fields = parent::fields();
+        unset($fields['user_id']);
+        $fields['user'] = 'user';
+        return $fields;
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['message_id', 'user_id', 'create_time'], 'integer'],
             [['create_time'], 'safe'],
@@ -43,8 +47,7 @@ class Vote extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => 'ID',
             'message_id' => 'Message ID',
@@ -56,8 +59,7 @@ class Vote extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUser()
-    {
+    public function getUser() {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace app\models\moment;
 
+use app\cache\service\HotMomentsService;
 use app\models\album\Album;
 use app\models\message\Message;
 use app\models\tag\Tag;
@@ -45,10 +46,11 @@ class Moment extends \yii\db\ActiveRecord {
     public function fields() {
         $fields = parent::fields();
         Yii::info($fields);
-        unset($fields['user_id'], $fields['message_id']);
+        unset($fields['user_id'], $fields['message_id'],$fields['album_id']);
         $fields['user'] = 'user';
         $fields['message'] = 'message';
         $fields['tags'] = 'tags';
+        $fields['album'] = 'album';
         return $fields;
     }
 
@@ -91,7 +93,7 @@ class Moment extends \yii\db\ActiveRecord {
     public function getMessage() {
         return $this->hasOne(Message::className(), ['id' => 'message_id']);
     }
-
+    
     /**
      * @return \yii\db\ActiveQuery
      */

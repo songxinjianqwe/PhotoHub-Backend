@@ -32,7 +32,6 @@ class Album extends \yii\db\ActiveRecord {
     public function fields() {
         $fields = parent::fields();
         $fields['tags'] = 'tags';
-        $fields['moments'] = 'moments';
         return $fields;
     }
 

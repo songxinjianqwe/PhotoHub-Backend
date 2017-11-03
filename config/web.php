@@ -73,9 +73,14 @@ $config = [
                 //点赞评论转发
                 'POST messages/<message_id:\d+>/vote' => 'action/vote',
                 'DELETE messages/<message_id:\d+>/vote/<id:\d+>' => 'action/un-vote',
+                'OPTIONS messages/<message_id:\d+>/vote' => 'action/options',
+                
                 'POST messages/<message_id:\d+>/comment' => 'action/comment',
                 'DELETE messages/<message_id:\d+>/comment/<id:\d+>' => 'action/un-comment',
+                'OPTIONS messages/<message_id:\d+>/comment' => 'action/options',
+                
                 'POST messages/<message_id:\d+>/forward' => 'action/forward',
+                'OPTIONS messages/<message_id:\d+>/forward' => 'action/options',
                 //活动回复
                 'GET activities/<activity_id:\d+>/replies' => 'activity-reply/index',
                 'GET activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/view',

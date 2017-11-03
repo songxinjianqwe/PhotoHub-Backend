@@ -17,6 +17,7 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\IntegrityException;
 use yii\web\BadRequestHttpException;
+use yii\web\ConflictHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
@@ -67,7 +68,7 @@ class MomentController extends BaseActiveController {
         Yii::info("MomentController:   actionIndex  id:" . $id);
         return Yii::createObject([
             'class' => ActiveDataProvider::className(),
-            'query' => Moment::find()->where(['user_id' => $id])
+            'query' => Moment::find()->where(['user_id' => $id])->orderBy('id desc')
         ]);
     }
 
@@ -83,7 +84,7 @@ class MomentController extends BaseActiveController {
             try {
                 $moment->save();
             } catch (IntegrityException $e) {
-                throw new BadRequestHttpException('moment id 不可重复');
+                throw new ConflictHttpException('moment id 不可重复');
             }
             //先保存moment
             //对tag进行保存

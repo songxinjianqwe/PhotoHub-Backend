@@ -16,8 +16,11 @@ use app\models\message\action\Forward;
 use app\models\message\action\Vote;
 use app\models\message\Message;
 use app\models\moment\Moment;
+use Exception;
 use Yii;
+use yii\db\IntegrityException;
 use yii\web\BadRequestHttpException;
+use yii\web\ConflictHttpException;
 use yii\web\NotFoundHttpException;
 
 class ActionController extends BaseActiveController {
@@ -25,6 +28,7 @@ class ActionController extends BaseActiveController {
     private $hotMomentsService;
     private $hotMomentsByTagService;
     private $tagTalentService;
+
     /**
      * @inheritDoc
      */
@@ -62,7 +66,7 @@ class ActionController extends BaseActiveController {
 
         return $behaviors;
     }
-    
+
     public function actions() {
         $actions = parent::actions();
         unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
@@ -78,8 +82,11 @@ class ActionController extends BaseActiveController {
         $vote = new Vote();
         $vote->message_id = $messageId;
         $vote->user_id = Yii::$app->user->identity->getId();
-        $vote->save();
-
+        try {
+            $vote->save();
+        } catch (IntegrityException $e) {
+            throw new ConflictHttpException();
+        }
         $moment = Moment::findOne([
             'message_id' => $messageId
         ]);

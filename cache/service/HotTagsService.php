@@ -81,21 +81,7 @@ class HotTagsService {
         foreach ($newTags as $newTag) {
             //新增的情况
             if ($newTag['id'] === null) {
-
-                $newTagObj = new Tag();
-                $newTagObj->name = $newTag['name'];
-                $newTagObj->save();
-                $this->createTag($newTagObj->id);
-
-                $typeTag = new $className();
-                $typeTag->$propertyName = $typeId;
-                $typeTag->tag_id = $newTagObj->id;
-                $typeTag->save();
-                Yii::info('新增TypeTag' . $typeTag->tag_id);
-                if ($tagType === 'moment') {
-                    $this->latestMomentsByTagService->createMoment($typeId, $newTagObj->id);
-                    $this->hotMomentsByTagService->createMoment($typeId, $newTagObj->id);
-                }
+                $this->saveTag($newTag['name'],$typeId,$tagType);
             } else {
                 foreach ($oldTags as $oldTag) {
                     //只要id相等，说明一定不是删除，是修改或不变
