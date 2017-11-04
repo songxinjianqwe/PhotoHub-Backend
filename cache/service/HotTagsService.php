@@ -26,18 +26,68 @@ class HotTagsService {
         $this->latestMomentsByTagService = Yii::$container->get('app\cache\service\LatestMomentsByTagService');
         $this->hotMomentsByTagService = Yii::$container->get('app\cache\service\HotMomentsByTagService');
     }
-    
-    public function saveTags($tagIds,$userId){
-        foreach($tagIds as $tagId){
+
+    public function saveUserTags($tagIds, $userId) {
+        foreach ($tagIds as $tagId) {
             $userTag = new UserTag();
             $userTag->user_id = $userId;
             $userTag->tag_id = $tagId;
             $userTag->save();
             //用户关注标签会影响标签的热度
-            $this->manager->changeScore($tagId, 1);
-        }    
+            $this->referTag($tagId);
+        }
     }
-    
+
+    /**
+     * 新的tagId出现在旧的Tags中，则不变
+     * 如果没有出现，那么添加
+     * 如果旧的Tags里没有对应的，那么删除
+     * @param $oldTags
+     * @param $tagIds
+     * @param $userId
+     */
+    public function updateUserTags($oldTags, $tagIds, $userId) {
+        foreach($oldTags as $oldTag){
+            Yii::info($oldTag->id.'   '.$oldTag->name);
+        }
+        $containedTags = [];
+        foreach ($tagIds as $newTagId) {
+            $isNew = false;
+            foreach ($oldTags as $oldTag) {
+                //只要id相等，说明不变
+                if ($newTagId == $oldTag->id) {
+                    //这个数组里的元素都不会被删除
+                    Yii::info('array_push($containedTags, $oldTag->id)' . $oldTag->id);
+                    array_push($containedTags, $oldTag->id);
+                    $isNew = true;
+                    break;
+                }
+            }
+            if (!$isNew) {
+                $userTag = new UserTag();
+                $userTag->user_id = $userId;
+                $userTag->tag_id = $newTagId;
+                $userTag->save();
+                //用户关注标签会影响标签的热度
+                $this->referTag($newTagId);
+            }
+        }
+        //需要去掉的tag
+        foreach ($oldTags as $oldTag) {
+            if (!in_array($oldTag->id, $containedTags)) {
+                $deletedUserTag = UserTag::findOne([
+                    'tag_id' => $oldTag->id,
+                    'user_id' => $userId
+                ]);
+                $deletedUserTag->delete();
+                $this->unReferTag($oldTag->id);
+            }
+        }
+    }
+
+
+    //**************************************************************************************************
+    //以下服务于Moment和Album
     public function saveTag($tagName, $typeId, $tagType) {
         $tagDO = Tag::findOne(['name' => $tagName]);
         $className = '\app\models\tag\\' . ucwords($tagType) . 'Tag';
@@ -81,7 +131,7 @@ class HotTagsService {
         foreach ($newTags as $newTag) {
             //新增的情况
             if ($newTag['id'] === null) {
-                $this->saveTag($newTag['name'],$typeId,$tagType);
+                $this->saveTag($newTag['name'], $typeId, $tagType);
             } else {
                 foreach ($oldTags as $oldTag) {
                     //只要id相等，说明一定不是删除，是修改或不变
@@ -145,6 +195,6 @@ class HotTagsService {
 
     public function getHotTags($page, $per_page) {
         $pageDTO = $this->manager->indexDesc($page, $per_page);
-        return new PageVO(DBUtil::orderByField($pageDTO->ids,Tag::find()->where(['id' => $pageDTO->ids])->all(),'id'), $pageDTO->_meta);
+        return new PageVO(DBUtil::orderByField($pageDTO->ids, Tag::find()->where(['id' => $pageDTO->ids])->all(), 'id'), $pageDTO->_meta);
     }
 }

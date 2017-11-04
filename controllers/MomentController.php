@@ -73,9 +73,9 @@ class MomentController extends BaseActiveController {
     }
 
     /**
-     * 同步更新tag-talent,feed
      * @return Moment
      * @throws BadRequestHttpException
+     * @throws ConflictHttpException
      */
     public function actionCreate() {
         $body = Yii::$app->request->post();

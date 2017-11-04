@@ -50,7 +50,7 @@ $config = [
                 'OPTIONS tokens' => 'token/options',
                 'GET tokens/cos' => 'token/cos',
                 'OPTIONS tokens/cos' => 'token/options',
-                
+
                 //关注分组
                 'GET users/<user_id:\d+>/follow_groups' => 'follow-group/index',
                 'GET users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/view',
@@ -58,7 +58,7 @@ $config = [
                 'PUT users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/update',
                 'DELETE users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/delete',
                 'OPTIONS users/<user_id:\d+>/follow_groups' => 'follow-group/options',
-                
+
                 //关注
                 'POST users/<user_id:\d+>/follows' => 'follow/create',
                 'DELETE users/<user_id:\d+>/follows/<id:\d+>' => 'follow/delete',
@@ -70,15 +70,17 @@ $config = [
                 'PUT users/<user_id:\d+>/albums/<id:\d+>' => 'album/update',
                 'DELETE users/<user_id:\d+>/albums/<id:\d+>' => 'album/delete',
                 'OPTIONS users/<user_id:\d+>/albums' => 'album/options',
-                //点赞评论转发
+                //点赞
                 'POST messages/<message_id:\d+>/vote' => 'action/vote',
                 'DELETE messages/<message_id:\d+>/vote/<id:\d+>' => 'action/un-vote',
                 'OPTIONS messages/<message_id:\d+>/vote' => 'action/options',
-                
+                'OPTIONS messages/<message_id:\d+>/vote/<id:\d+>' => 'action/options',
+                //评论
                 'POST messages/<message_id:\d+>/comment' => 'action/comment',
                 'DELETE messages/<message_id:\d+>/comment/<id:\d+>' => 'action/un-comment',
                 'OPTIONS messages/<message_id:\d+>/comment' => 'action/options',
-                
+                'OPTIONS messages/<message_id:\d+>/comment/<id:\d+>' => 'action/options',
+                //转发
                 'POST messages/<message_id:\d+>/forward' => 'action/forward',
                 'OPTIONS messages/<message_id:\d+>/forward' => 'action/options',
                 //活动回复

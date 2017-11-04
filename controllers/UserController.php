@@ -20,16 +20,19 @@ use Yii;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 class UserController extends BaseActiveController {
     public $modelClass = 'app\models\user\User';
     private $hotTagsService;
+    private $tokenManager;
 
     /**
      * @inheritDoc
      */
     public function init() {
         $this->hotTagsService = Yii::$container->get('app\cache\service\HotTagsService');
+        $this->tokenManager = Yii::$container->get('app\security\TokenManager');
     }
 
     /**
@@ -43,7 +46,7 @@ class UserController extends BaseActiveController {
     public function behaviors() {
         $behaviors = parent::behaviors();
         //访问 POST /users不需要任何权限
-        $behaviors = parent::requireNone($behaviors, ['create','username-duplicated']);
+        $behaviors = parent::requireNone($behaviors, ['create', 'username-duplicated']);
         //访问/users 需要管理员权限
         $behaviors = parent::requireAdmin($behaviors, ['index']);
         //修改用户信息 需要管理员或本人权限
@@ -59,10 +62,10 @@ class UserController extends BaseActiveController {
      */
     public function actions() {
         $actions = parent::actions();
-        unset($actions['create']);
+        unset($actions['create'], $actions['update']);
         return $actions;
     }
-    
+
     /**
      * 注册
      */
@@ -99,13 +102,13 @@ class UserController extends BaseActiveController {
         $user->default_follow_group_id = $followGroup->id;
         $user->update();
         $user->password = '';
-        
+
         //保存用户的tags
         $tags = $body['tags'];
         if ($tags !== null) {
-            $this->hotTagsService->saveTags($tags,$user->id);
+            $this->hotTagsService->saveUserTags($tags, $user->id);
         }
-        
+
         $follows = $body['follows'];
         if ($follows !== null) {
             foreach ($follows as $followedUserId) {
@@ -118,9 +121,32 @@ class UserController extends BaseActiveController {
         }
         return $user;
     }
-    
-    
-    public function  actionUsernameDuplicated(){
+
+    public function actionUpdate() {
+        $body = Yii::$app->request->post();
+        $user = User::findOne($body['id']);
+        if ($body['username'] !== null && $user->username != $body['username']) {
+            throw new BadRequestHttpException('username can not be changed');
+        }
+        $oldTags = $user->tags;
+        $user->load($body, '');
+        if ($body['password'] !== null) {
+            $user->password = Yii::$app->getSecurity()->generatePasswordHash($user->password);
+            //修改密码，将原有token删除
+            $this->tokenManager->deleteToken($user->username);
+        }
+        if ($user->save() === false && !$user->hasErrors()) {
+            throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
+        }
+        //保存用户的tags
+        $tags = $body['tags'];
+        if ($tags !== null) {
+            $this->hotTagsService->updateUserTags($oldTags, $tags, $user->id);
+        }
+        return User::findOne($body['id']);
+    }
+
+    public function actionUsernameDuplicated() {
         $username = Yii::$app->request->get('username');
         $user = User::findOne(['username' => $username]);
         Yii::$app->response->format = Response::FORMAT_RAW;

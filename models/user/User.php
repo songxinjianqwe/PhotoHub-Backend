@@ -12,6 +12,7 @@ use app\models\message\action\Forward;
 use app\models\message\action\Vote;
 use app\models\message\Message;
 use app\models\moment\Moment;
+use app\models\tag\Tag;
 use Yii;
 use yii\web\IdentityInterface;
 
@@ -43,21 +44,27 @@ use yii\web\IdentityInterface;
  * @property UserTag[] $userTags
  * @property Vote[] $votes
  */
-class User extends \yii\db\ActiveRecord implements IdentityInterface{
+class User extends \yii\db\ActiveRecord implements IdentityInterface {
     /**
      * @inheritdoc
      */
     public static function tableName() {
         return 'user';
     }
-    
+
+    public function fields() {
+        $fields = parent::fields();
+        $fields['tags'] = 'tags';
+        return $fields;
+    }
+
     /**
      * @inheritdoc
      */
     public function rules() {
         return [
             [['username', 'password'], 'required'],
-            [['username', 'password', 'avatar','introduction'], 'string'],
+            [['username', 'password', 'avatar', 'introduction'], 'string'],
             [['reg_time'], 'safe'],
             [['default_album_id', 'default_follow_group_id'], 'integer'],
             [['default_follow_group_id'], 'exist', 'skipOnError' => true, 'targetClass' => FollowGroup::className(), 'targetAttribute' => ['default_follow_group_id' => 'id']],
@@ -164,15 +171,22 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface{
     public function getUserRoles() {
         return $this->hasMany(Role::className(), ['id' => 'role'])->viaTable('user_role', ['user' => 'id']);
     }
-    
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getVotes() {
         return $this->hasMany(Vote::className(), ['user_id' => 'id']);
     }
-    
-     /**
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTags() {
+        return $this->hasMany(Tag::className(), ['id' => 'tag_id'])->viaTable('user_tag', ['user_id' => 'id']);
+    }
+
+    /**
      * Finds an identity by the given ID.
      * @param string|int $id the ID to be looked for
      * @return IdentityInterface the identity object that matches the given ID.
