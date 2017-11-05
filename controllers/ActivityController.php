@@ -68,14 +68,14 @@ class ActivityController extends BaseActiveController {
 
     public function actionHot() {
         $page = Yii::$app->request->get('page');
-        $per_page = Yii::$app->request->get('per_page');
+        $per_page = Yii::$app->request->get('per-page');
         return $this->hotActivitiesService->show($page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
 
     }
 
     public function actionLatest() {
         $page = Yii::$app->request->get('page');
-        $per_page = Yii::$app->request->get('per_page');
+        $per_page = Yii::$app->request->get('per-page');
         return $this->latestActivitiesService->show($page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
     }
 

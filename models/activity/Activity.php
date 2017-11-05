@@ -21,6 +21,7 @@ use Yii;
  * @property ActivityReply[] $activityReplies
  */
 class Activity extends \yii\db\ActiveRecord {
+    const THUMBNAIL_COUNT = 6;
     /**
      * @inheritdoc
      */
@@ -32,6 +33,8 @@ class Activity extends \yii\db\ActiveRecord {
         $fields = parent::fields();
         unset($fields['message_id']);
         $fields['message'] = 'message';
+        $fields['thumbnails'] = 'thumbnails';
+        $fields['replies'] = 'replies';
         return $fields;
     }
 
@@ -78,7 +81,32 @@ class Activity extends \yii\db\ActiveRecord {
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getActivityReplies() {
+    public function getReplies() {
         return $this->hasMany(ActivityReply::className(), ['activity_id' => 'id']);
+    }
+
+
+    /**
+     * 获得相册对应的缩略图，遍历moments，从中取出text里的图片url，最多取6张
+     */
+    public function getThumbnails() {
+        $result = array();
+        Yii::info('获取缩略图');
+        Yii::info('当前activity的id为' . $this->id);
+        $replies = ActivityReply::find()->where(['activity_id' => $this->id])->all();
+        Yii::info('当前replies个数' . count($replies));
+        foreach ($replies as $moment) {
+            Yii::info('该moment id为' . $moment->id);
+            $midResult = array();
+            preg_match_all('/\]\((.*?(?<=png|gif|jpg|jpeg))\)/', $moment->message->text, $midResult);
+            Yii::info('得到结果');
+            Yii::info($midResult[1]);
+            $result = array_merge($result, array_slice($midResult[1], 0, static::THUMBNAIL_COUNT - count($result)));
+            Yii::info('当前结果个数' . count($result));
+            if (count($result) === static::THUMBNAIL_COUNT) {
+                return $result;
+            }
+        }
+        return $result;
     }
 }

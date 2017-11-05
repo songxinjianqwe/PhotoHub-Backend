@@ -22,6 +22,8 @@ use Yii;
  * @property Moment[] $moments
  */
 class Album extends \yii\db\ActiveRecord {
+    const THUMBNAIL_COUNT = 6;
+
     /**
      * @inheritdoc
      */
@@ -31,10 +33,12 @@ class Album extends \yii\db\ActiveRecord {
 
     public function fields() {
         $fields = parent::fields();
+        unset($fields['user_id']);
         $fields['tags'] = 'tags';
+        $fields['user'] = 'user';
+        $fields['thumbnails'] = 'thumbnails';
         return $fields;
     }
-
 
     /**
      * @inheritdoc
@@ -80,5 +84,29 @@ class Album extends \yii\db\ActiveRecord {
      */
     public function getMoments() {
         return $this->hasMany(Moment::className(), ['album_id' => 'id']);
+    }
+
+    /**
+     * 获得相册对应的缩略图，遍历moments，从中取出text里的图片url，最多取6张
+     */
+    public function getThumbnails() {
+        $result = array();
+        Yii::info('获取缩略图');
+        Yii::info('当前album的id为' . $this->id);
+        $moments = Moment::find()->where(['album_id' => $this->id])->all();
+        Yii::info('当前moments个数'.count($moments));
+        foreach ($moments as $moment) {
+            Yii::info('该moment id为' . $moment->id);
+            $midResult = array();
+            preg_match_all('/\]\((.*?(?<=png|gif|jpg|jpeg))\)/', $moment->message->text, $midResult);
+            Yii::info('得到结果');
+            Yii::info($midResult[1]);
+            $result = array_merge($result, array_slice($midResult[1], 0, static::THUMBNAIL_COUNT - count($result)));
+            Yii::info('当前结果个数' . count($result));
+            if (count($result) === static::THUMBNAIL_COUNT) {
+                return $result;
+            }
+        }
+        return $result;
     }
 }

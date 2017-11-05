@@ -29,7 +29,7 @@ class MomentController extends BaseActiveController {
     private $latestMomentsByTagService;
     private $hotMomentsByTagService;
     private $tagTalentService;
-    
+
     public function init() {
         $this->feedService = Yii::$container->get('app\cache\service\FeedService');
         $this->hotTagsService = Yii::$container->get('app\cache\service\HotTagsService');
@@ -61,15 +61,23 @@ class MomentController extends BaseActiveController {
 
     // /moments?user_id={user_id}
     public function actionIndex() {
-        $id = Yii::$app->request->get('user_id');
-        if ($id === null || $id === '') {
-            throw new BadRequestHttpException("user_id not given");
+        $userId = Yii::$app->request->get('user_id');
+        if ($userId !== null && $userId !== '') {
+            Yii::info("MomentController:   actionIndex  user id:" . $userId);
+            return Yii::createObject([
+                'class' => ActiveDataProvider::className(),
+                'query' => Moment::find()->where(['user_id' => $userId])->orderBy('id desc')
+            ]);
         }
-        Yii::info("MomentController:   actionIndex  id:" . $id);
-        return Yii::createObject([
-            'class' => ActiveDataProvider::className(),
-            'query' => Moment::find()->where(['user_id' => $id])->orderBy('id desc')
-        ]);
+        $albumId = Yii::$app->request->get('album_id');
+        if ($albumId !== null || $albumId !== '') {
+            Yii::info("MomentController:   actionIndex  albumn id:" . $albumId);
+            return Yii::createObject([
+                'class' => ActiveDataProvider::className(),
+                'query' => Moment::find()->where(['album_id' => $albumId])->orderBy('id desc')
+            ]);
+        }
+        throw new BadRequestHttpException('user id or album id not given');
     }
 
     /**
@@ -154,7 +162,7 @@ class MomentController extends BaseActiveController {
         $this->hotTagsService->deleteTags($moment->tags, $moment->id, 'moment');
         $this->feedService->removeMoment($moment->user_id, $moment->id);
         $this->hotMomentsService->removeMoment($moment->id);
-        $this->tagTalentService->removeMoment($moment,$referTimes);
+        $this->tagTalentService->removeMoment($moment, $referTimes);
     }
 
     public function actionHot() {

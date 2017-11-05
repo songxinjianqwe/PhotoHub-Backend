@@ -37,7 +37,7 @@ class HotActivitiesService {
         $this->manager->changeScore($activityId, -1);
     }
 
-    public function getHotActivities($page, $per_page) {
+    public function show($page, $per_page) {
         $pageDTO = $this->manager->indexDesc($page, $per_page);
         return new PageVO(DBUtil::orderByField($pageDTO->ids,Activity::find()->where(['id' => $pageDTO->ids])->all(),'id'), $pageDTO->_meta);
     }

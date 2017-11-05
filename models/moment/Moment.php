@@ -39,6 +39,16 @@ class Moment extends \yii\db\ActiveRecord {
     }
 
     /**
+     * @inheritDoc
+     */
+    public function __toString() {
+        return 'id:'.$this->id.',message.text'.$this->message->text;
+    }
+    
+    
+
+
+    /**
      * 重新设置返回的属性，在此进行关联查询
      * $this->getUser相当于$this->user
      * @return array

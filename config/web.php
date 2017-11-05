@@ -50,7 +50,6 @@ $config = [
                 'OPTIONS tokens' => 'token/options',
                 'GET tokens/cos' => 'token/cos',
                 'OPTIONS tokens/cos' => 'token/options',
-
                 //关注分组
                 'GET users/<user_id:\d+>/follow_groups' => 'follow-group/index',
                 'GET users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/view',
@@ -58,18 +57,10 @@ $config = [
                 'PUT users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/update',
                 'DELETE users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/delete',
                 'OPTIONS users/<user_id:\d+>/follow_groups' => 'follow-group/options',
-
                 //关注
                 'POST users/<user_id:\d+>/follows' => 'follow/create',
                 'DELETE users/<user_id:\d+>/follows/<id:\d+>' => 'follow/delete',
                 'OPTIONS users/<user_id:\d+>/follows' => 'follow/options',
-                //相册
-                'GET users/<user_id:\d+>/albums' => 'album/index',
-                'GET users/<user_id:\d+>/albums/<id:\d+>' => 'album/view',
-                'POST users/<user_id:\d+>/albums' => 'album/create',
-                'PUT users/<user_id:\d+>/albums/<id:\d+>' => 'album/update',
-                'DELETE users/<user_id:\d+>/albums/<id:\d+>' => 'album/delete',
-                'OPTIONS users/<user_id:\d+>/albums' => 'album/options',
                 //点赞
                 'POST messages/<message_id:\d+>/vote' => 'action/vote',
                 'DELETE messages/<message_id:\d+>/vote/<id:\d+>' => 'action/un-vote',
@@ -112,7 +103,7 @@ $config = [
                 'GET tags/search' => 'tag/search',
                 'GET users/<username:\w+>/duplication' => 'user/username-duplicated',
                 // /<controller> 四种方法
-                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment', 'message', 'activity']],
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment', 'message', 'activity','album']],
             ],
         ],
         //日志

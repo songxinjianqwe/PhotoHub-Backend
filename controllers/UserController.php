@@ -46,7 +46,7 @@ class UserController extends BaseActiveController {
     public function behaviors() {
         $behaviors = parent::behaviors();
         //访问 POST /users不需要任何权限
-        $behaviors = parent::requireNone($behaviors, ['create', 'username-duplicated']);
+        $behaviors = parent::requireNone($behaviors, ['create','view', 'username-duplicated']);
         //访问/users 需要管理员权限
         $behaviors = parent::requireAdmin($behaviors, ['index']);
         //修改用户信息 需要管理员或本人权限
