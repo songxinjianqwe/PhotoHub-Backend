@@ -52,18 +52,23 @@ class ActivityController extends BaseActiveController {
         $model = $action->run();
         $this->latestActivitiesService->createActivity($model->id);
         $this->hotActivitiesService->createActivity($model->id);
-        return $model;
+        return Activity::findOne($model->id);
     }
-
+    
     public function actionDelete() {
         $id = Yii::$app->request->get('id');
         $activity = Activity::findOne($id);
         if ($activity === null) {
             throw new NotFoundHttpException('id not found');
         }
+        foreach ($activity->replies as $reply) {
+            $reply->delete();
+            $this->hotActivitiesService->removeReply($id);
+        }
         $activity->delete();
         $this->latestActivitiesService->removeActivity($activity->id);
         $this->hotActivitiesService->removeActivity($activity->id);
+
     }
 
     public function actionHot() {

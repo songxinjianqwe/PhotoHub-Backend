@@ -9,6 +9,7 @@
 namespace app\security;
 
 
+use Exception;
 use Firebase\JWT\JWT;
 use yii\web\UnauthorizedHttpException;
 use Yii;

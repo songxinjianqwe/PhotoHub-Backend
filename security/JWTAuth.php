@@ -11,6 +11,7 @@ namespace app\security;
 use app\models\user\User;
 use Yii;
 use yii\filters\auth\AuthMethod;
+use yii\web\ForbiddenHttpException;
 
 class JWTAuth extends AuthMethod {
     private $tokenManager;

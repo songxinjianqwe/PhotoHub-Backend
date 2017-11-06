@@ -13,14 +13,16 @@ class LoginResult {
     public $id;
     public $username;
     public $token;
+    public $isAdmin;
 
     /**
      * @inheritDoc
      */
-    public function __construct($id,$username,$token) {
+    public function __construct($id,$username,$token,$isAdmin) {
         $this->id = $id;
         $this->username = $username;
         $this->token = $token;
+        $this->isAdmin = $isAdmin;
     }
 
 }

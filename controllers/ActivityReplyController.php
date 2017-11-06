@@ -70,11 +70,11 @@ class ActivityReplyController extends BaseActiveController {
     
     public function actionDelete() {
         $id = Yii::$app->request->get('id');
-        $activity = ActivityReply::findOne($id);
-        if ($activity === null) {
+        $reply = ActivityReply::findOne($id);
+        if ($reply === null) {
             throw new NotFoundHttpException('id not found');
         }
-        $activity->delete();
-        $this->hotActivitiesService->removeReply($activity->activity_id);
+        $reply->delete();
+        $this->hotActivitiesService->removeReply($reply->activity_id);
     }
 }

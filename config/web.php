@@ -80,6 +80,7 @@ $config = [
                 'POST activities/<activity_id:\d+>/replies' => 'activity-reply/create',
                 'DELETE activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/delete',
                 'OPTIONS activities/<activity_id:\d+>/replies' => 'activity-reply/options',
+                'OPTIONS activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/options',
                 //热门动态，分页显示
                 'GET moments/hot' => 'moment/hot',
                 //按Tag查询的热门动态
@@ -88,13 +89,16 @@ $config = [
                 'GET moments/latest/by_tag/<id:\d+>' => 'moment/latest-by-tag',
                 //热门活动
                 'GET activities/hot' => 'activity/hot',
+                'OPTIONS activities/hot' => 'activity/options',
                 //最新活动
                 'GET activities/latest' => 'activity/latest',
+                'OPTIONS activities/latest' => 'activity/options',
                 //Feed
                 'GET users/<id:\d+>/feed' => 'feed/index',
                 'OPTIONS users/<id:\d+>/feed' => 'feed/options',
                 //热门标签
                 'GET tags/hot' => 'tag/hot',
+                'OPTIONS tags/hot' => 'tag/options',
                 //标签达人
                 'GET tags/talents/<id:\d+>' => 'tag/talent',
                 'POST tags/talents/batch' => 'tag/talent-batch',

@@ -11,6 +11,7 @@ namespace app\controllers;
 use app\controllers\base\BaseActiveController;
 use app\models\user\LoginDTO;
 use app\models\user\LoginResult;
+use app\models\user\Role;
 use app\models\user\User;
 use app\security\JWTAuth;
 use yii\filters\ContentNegotiator;
@@ -75,8 +76,16 @@ class TokenController extends BaseActiveController {
         }
         Yii::info($this->tokenManager);
         $this->tokenManager->deleteToken($user->username);
+        Yii::info('roles');
+        Yii::info($user->userRoles);
+        $isAdmin = false;
+        foreach($user->userRoles as $role){
+            if($role->role_name == 'ROLE_ADMIN'){
+                $isAdmin = true;
+            }
+        }
         //验证成功
-        return new LoginResult($user->id, $user->username, $this->tokenManager->createToken($user->username));
+        return new LoginResult($user->id, $user->username, $this->tokenManager->createToken($user->username),$isAdmin);
     }
 
     public function actionDelete() {
