@@ -12,7 +12,9 @@ use Yii;
  * @property integer $followed_user_id
  * @property string $create_time
  * @property integer $group_id
+ * @property integer $user_id
  *
+ * @property User $user
  * @property FollowGroup $group
  * @property User $followedUser
  */
@@ -31,20 +33,21 @@ class Follow extends \yii\db\ActiveRecord
      */
     public function fields() {
         $fields = parent::fields();
-        unset($fields['followed_user_id']);
+        unset($fields['followed_user_id'],$fields['user_id']);
         $fields['followedUser'] = 'followedUser';
         return $fields;
     }
 
 
-    /**
+     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['followed_user_id', 'group_id'], 'integer'],
+            [['followed_user_id', 'group_id', 'user_id'], 'integer'],
             [['create_time'], 'safe'],
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
             [['group_id'], 'exist', 'skipOnError' => true, 'targetClass' => FollowGroup::className(), 'targetAttribute' => ['group_id' => 'id']],
             [['followed_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['followed_user_id' => 'id']],
         ];
@@ -60,7 +63,24 @@ class Follow extends \yii\db\ActiveRecord
             'followed_user_id' => 'Followed User ID',
             'create_time' => 'Create Time',
             'group_id' => 'Group ID',
+            'user_id' => 'User ID',
         ];
+    }
+
+ /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGroup()
+    {
+        return $this->hasOne(FollowGroup::className(), ['id' => 'group_id']);
     }
 
     /**

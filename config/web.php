@@ -57,10 +57,13 @@ $config = [
                 'PUT users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/update',
                 'DELETE users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/delete',
                 'OPTIONS users/<user_id:\d+>/follow_groups' => 'follow-group/options',
+                'OPTIONS users/<user_id:\d+>/follow_groups/<id:\d+>' => 'follow-group/options',
                 //关注
                 'POST users/<user_id:\d+>/follows' => 'follow/create',
-                'DELETE users/<user_id:\d+>/follows/<id:\d+>' => 'follow/delete',
+                'DELETE users/<user_id:\d+>/follows/<target_id:\d+>' => 'follow/delete',
+                'GET users/<user_id:\d+>/follows/<target_id:\d+>' => 'follow/is-follow',
                 'OPTIONS users/<user_id:\d+>/follows' => 'follow/options',
+                'OPTIONS users/<user_id:\d+>/follows/<target_id:\d+>' => 'follow/options',
                 //点赞
                 'POST messages/<message_id:\d+>/vote' => 'action/vote',
                 'DELETE messages/<message_id:\d+>/vote/<id:\d+>' => 'action/un-vote',
@@ -83,6 +86,7 @@ $config = [
                 'OPTIONS activities/<activity_id:\d+>/replies/<id:\d+>' => 'activity-reply/options',
                 //热门动态，分页显示
                 'GET moments/hot' => 'moment/hot',
+                'OPTIONS moments/hot' => 'moment/options',
                 //按Tag查询的热门动态
                 'GET moments/hot/by_tag/<id:\d+>' => 'moment/hot-by-tag',
                 //按Tag查询的最新动态

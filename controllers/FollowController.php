@@ -16,6 +16,7 @@ use app\models\user\User;
 use Yii;
 use yii\rest\CreateAction;
 use yii\rest\DeleteAction;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 
 class FollowController extends BaseActiveController {
@@ -23,9 +24,10 @@ class FollowController extends BaseActiveController {
 
     public function actions() {
         $actions = parent::actions();
-        unset($actions['index'], $actions['view'], $actions['update']);
+        unset($actions['index'], $actions['view'], $actions['update'], $actions['delete']);
         return $actions;
     }
+
 
     /**
      * 只有关注和取关两种操作
@@ -33,18 +35,29 @@ class FollowController extends BaseActiveController {
      */
     public function behaviors() {
         $behaviors = parent::behaviors();
+        $behaviors = parent::requireAdminOrMySelf($behaviors, ['is-follow','delete']);
         $behaviors = parent::requireAdminOrMySelf($behaviors, ['create'], function () {
             $groupId = Yii::$app->request->bodyParams["group_id"];
             $group = FollowGroup::findOne($groupId);
             return $group->user_id == Yii::$app->user->identity->getId();
         });
-        
-        $behaviors = parent::requireAdminOrMySelf($behaviors, ['delete'], function () {
-            $followId = Yii::$app->request->get('id');
-            $follow = Follow::findOne($followId);
-            $followGroup = FollowGroup::findOne($follow->group_id);
-            return $followGroup->user_id == Yii::$app->user->identity->getId();
-        });
         return $behaviors;
+    }
+
+    public function actionIsFollow() {
+        $userId = Yii::$app->request->get('user_id');
+        $targetId = Yii::$app->request->get('target_id');
+        $follow = Follow::findOne(['user_id' => $userId, 'followed_user_id' => $targetId]);
+        return $follow !== null;
+    }
+
+    public function actionDelete() {
+        $userId = Yii::$app->request->get('user_id');
+        $targetId = Yii::$app->request->get('target_id');
+        $follow = Follow::findOne(['user_id' => $userId, 'followed_user_id' => $targetId]);
+        if($follow === null){
+            throw new BadRequestHttpException('follow relation does not exist');
+        }
+        $follow->delete();
     }
 }

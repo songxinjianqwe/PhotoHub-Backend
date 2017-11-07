@@ -29,7 +29,7 @@ class FollowGroupController extends BaseActiveController {
      */
     public function actions() {
         $actions = parent::actions();
-        unset($actions['index']);
+        unset($actions['index'],$actions['delete']);
         return $actions;
     }
 
@@ -44,5 +44,13 @@ class FollowGroupController extends BaseActiveController {
             'query' => FollowGroup::find()->where(['user_id' => $id])
         ]);
     }
-
+    
+    public function actionDelete(){
+        $id = Yii::$app->request->get('id');
+        $group = FollowGroup::findOne($id);
+        foreach($group->follows as $follow){
+            $follow->delete();
+        }
+        $group->delete();
+    }
 }
