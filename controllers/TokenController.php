@@ -19,6 +19,7 @@ use yii\filters\Cors;
 use yii\rest\ActiveController;
 use yii\rest\Controller;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use Yii;
@@ -71,21 +72,25 @@ class TokenController extends BaseActiveController {
         if ($user === null) {
             throw new NotFoundHttpException($loginDTO->username . ' 不存在');
         }
+        if ($user->state !== 0) {
+            throw new ForbiddenHttpException('user state error');
+        }
         if (!Yii::$app->getSecurity()->validatePassword($loginDTO->password, $user->password)) {
             throw new UnauthorizedHttpException('密码错误');
         }
+
         Yii::info($this->tokenManager);
         $this->tokenManager->deleteToken($user->username);
         Yii::info('roles');
         Yii::info($user->userRoles);
         $isAdmin = false;
-        foreach($user->userRoles as $role){
-            if($role->role_name == 'ROLE_ADMIN'){
+        foreach ($user->userRoles as $role) {
+            if ($role->role_name == 'ROLE_ADMIN') {
                 $isAdmin = true;
             }
         }
         //验证成功
-        return new LoginResult($user->id, $user->username, $this->tokenManager->createToken($user->username),$isAdmin);
+        return new LoginResult($user->id, $user->username, $this->tokenManager->createToken($user->username), $isAdmin);
     }
 
     public function actionDelete() {

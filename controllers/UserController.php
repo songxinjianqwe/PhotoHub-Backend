@@ -17,8 +17,10 @@ use app\models\tag\Tag;
 use app\models\tag\UserTag;
 use app\models\user\User;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
 
@@ -46,9 +48,9 @@ class UserController extends BaseActiveController {
     public function behaviors() {
         $behaviors = parent::behaviors();
         //访问 POST /users不需要任何权限
-        $behaviors = parent::requireNone($behaviors, ['create','view', 'username-duplicated']);
+        $behaviors = parent::requireNone($behaviors, ['create', 'view', 'username-duplicated', 'search']);
         //访问/users 需要管理员权限
-        $behaviors = parent::requireAdmin($behaviors, ['index']);
+        $behaviors = parent::requireAdmin($behaviors, ['index', 'delete', 'recover']);
         //修改用户信息 需要管理员或本人权限
         $behaviors = parent::requireAdminOrMySelf($behaviors, ['update']);
         Yii::info('最终的behaviors');
@@ -62,9 +64,17 @@ class UserController extends BaseActiveController {
      */
     public function actions() {
         $actions = parent::actions();
-        unset($actions['create'], $actions['update']);
+        unset($actions['create'], $actions['update'], $actions['index'], $actions['delete']);
         return $actions;
     }
+
+    public function actionIndex() {
+        return Yii::createObject([
+            'class' => ActiveDataProvider::className(),
+            'query' => User::find(),
+        ]);
+    }
+
 
     /**
      * 注册
@@ -146,10 +156,36 @@ class UserController extends BaseActiveController {
         return User::findOne($body['id']);
     }
 
+    public function actionDelete() {
+        $id = Yii::$app->request->get('id');
+        $user = User::findOne($id);
+        $this->tokenManager->deleteToken($user->username);
+        $user->state = -1;
+        $user->update();
+    }
+
+    public function actionRecover() {
+        $id = Yii::$app->request->get('id');
+        $user = User::findOne($id);
+        $user->state = 0;
+        $user->update();
+    }
+
     public function actionUsernameDuplicated() {
         $username = Yii::$app->request->get('username');
         $user = User::findOne(['username' => $username]);
         Yii::$app->response->format = Response::FORMAT_RAW;
         return $user !== null ? "true" : "false";
+    }
+
+    public function actionSearch() {
+        $keyword = Yii::$app->request->get('keyword');
+        if ($keyword === null) {
+            throw new BadRequestHttpException('keyword can not be null');
+        }
+        return Yii::createObject([
+            'class' => ActiveDataProvider::className(),
+            'query' => User::find()->where(['like', 'username', $keyword])
+        ]);
     }
 }

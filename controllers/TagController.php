@@ -17,7 +17,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 
 class TagController extends BaseActiveController {
-    public $modelClass = '';
+    public $modelClass = 'app\models\tag\Tag';
     private $hotTagsService;
     private $tagTalentService;
     private $hotMomentsByTagService;
@@ -30,27 +30,45 @@ class TagController extends BaseActiveController {
 
     public function behaviors() {
         $behaviors = parent::behaviors();
-        $behaviors = parent::requireNone($behaviors, ['hot', 'talent', 'search','talent-batch']);
+        $behaviors = parent::requireNone($behaviors, ['hot', 'talent', 'view', 'search', 'talent-batch']);
+        $behaviors = parent::requireAdminOrMySelf($behaviors, ['is-like', 'user-like', 'user-un-like']);
         return $behaviors;
     }
 
-
     public function actions() {
         $actions = parent::actions();
-        unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
+        unset($actions['index'], $actions['create'], $actions['update'], $actions['delete']);
         return $actions;
+    }
+
+    public function actionIsLike() {
+        $tagId = Yii::$app->request->get('tag_id');
+        $userId = Yii::$app->request->get('user_id');
+        return $this->hotTagsService->isUserTag($tagId, $userId);
+    }
+
+    public function actionUserLike() {
+        $tagId = Yii::$app->request->get('tag_id');
+        $userId = Yii::$app->request->get('user_id');
+        $this->hotTagsService->saveUserTag($tagId, $userId);
+    }
+
+    public function actionUserUnLike() {
+        $tagId = Yii::$app->request->get('tag_id');
+        $userId = Yii::$app->request->get('user_id');
+        $this->hotTagsService->deleteUserTag($tagId, $userId);
     }
 
     public function actionSearch() {
         $keyword = Yii::$app->request->get('keyword');
         if ($keyword === null) {
-            throw new BadRequestHttpException();
+            throw new BadRequestHttpException('keyword can not be null');
         }
         $tag = Tag::find()->where(['like', 'name', $keyword])->one();
         if ($tag === null) {
             throw new NotFoundHttpException('keyword can not match any tags');
         }
-        return $this->hotMomentsByTagService->show($tag->id, PageConstant::page, PageConstant::per_page);
+        return '/tags/'.$tag->id;
     }
 
     public function actionHot() {
@@ -65,13 +83,13 @@ class TagController extends BaseActiveController {
         $per_page = Yii::$app->request->get('per-page');
         return $this->tagTalentService->show($tagId, $page === null ? PageConstant::page : $page, $per_page === null ? PageConstant::per_page : $per_page);
     }
-    
-    public function actionTalentBatch(){
+
+    public function actionTalentBatch() {
         $tagIds = Yii::$app->request->bodyParams['tagIds'];
         $result = array();
-        foreach($tagIds as $tagId){
+        foreach ($tagIds as $tagId) {
             $tag = Tag::findOne($tagId);
-            $result[$tag->name] = $this->tagTalentService->show($tagId,PageConstant::page,PageConstant::per_page)->items;
+            $result[$tag->name] = $this->tagTalentService->show($tagId, PageConstant::page, PageConstant::per_page)->items;
         }
         return $result;
     }

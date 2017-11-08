@@ -89,8 +89,10 @@ $config = [
                 'OPTIONS moments/hot' => 'moment/options',
                 //按Tag查询的热门动态
                 'GET moments/hot/by_tag/<id:\d+>' => 'moment/hot-by-tag',
+                'OPTIONS moments/hot/by_tag/<id:\d+>' => 'moment/options',
                 //按Tag查询的最新动态
                 'GET moments/latest/by_tag/<id:\d+>' => 'moment/latest-by-tag',
+                'OPTIONS moments/latest/by_tag/<id:\d+>' => 'moment/options',
                 //热门活动
                 'GET activities/hot' => 'activity/hot',
                 'OPTIONS activities/hot' => 'activity/options',
@@ -102,14 +104,28 @@ $config = [
                 'OPTIONS users/<id:\d+>/feed' => 'feed/options',
                 //热门标签
                 'GET tags/hot' => 'tag/hot',
+                'GET tags/<id:\d+>' => 'tag/view',
                 'OPTIONS tags/hot' => 'tag/options',
+                'OPTIONS tags/<id:\d+>' => 'tag/options',
+                //用户与标签
+                'GET tags/<tag_id:\d+>/users/<user_id:\d+>' => 'tag/is-like',
+                'POST tags/<tag_id:\d+>/users/<user_id:\d+>' => 'tag/user-like',
+                'DELETE tags/<tag_id:\d+>/users/<user_id:\d+>' => 'tag/user-un-like',
+                'OPTIONS tags/<tag_id:\d+>/users/<user_id:\d+>'=> 'tag/options',
                 //标签达人
                 'GET tags/talents/<id:\d+>' => 'tag/talent',
                 'POST tags/talents/batch' => 'tag/talent-batch',
                 'OPTIONS tags/talents/batch' => 'tag/options',
+                'OPTIONS tags/talents/<id:\d+>' => 'tag/options',
                 //模糊搜索
                 'GET tags/search' => 'tag/search',
+                'OPTIONS tags/search' => 'tag/options',
                 'GET users/<username:\w+>/duplication' => 'user/username-duplicated',
+                'GET users/search' => 'user/search',
+                'OPTIONS users/search' => 'user/options',
+                //恢复用户
+                'PUT users/<id:\d+>/recover' => 'user/recover',
+                'OPTIONS users/<id:\d+>/recover' => 'user/options',
                 // /<controller> 四种方法
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['user', 'book', 'moment', 'message', 'activity','album']],
             ],

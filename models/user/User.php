@@ -24,15 +24,17 @@ use yii\web\IdentityInterface;
  * @property string $password
  * @property string $reg_time
  * @property string $avatar
- * @property integer $followers
  * @property integer $default_album_id
  * @property integer $default_follow_group_id
+ * @property string $introduction
+ * @property integer $state
  *
  * @property Activity[] $activities
  * @property ActivityReply[] $activityReplies
  * @property Album[] $albums
  * @property Comment[] $comments
  * @property Follow[] $follows
+ * @property Follow[] $follows0
  * @property FollowGroup[] $followGroups
  * @property Forward[] $forwards
  * @property Message[] $messages
@@ -42,7 +44,9 @@ use yii\web\IdentityInterface;
  * @property UserRole[] $userRoles
  * @property Role[] $roles
  * @property UserTag[] $userTags
+ * @property Tag[] $tags
  * @property Vote[] $votes
+ * @property Message[] $messages0
  */
 class User extends \yii\db\ActiveRecord implements IdentityInterface {
     /**
@@ -55,27 +59,39 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
     public function fields() {
         $fields = parent::fields();
         $fields['tags'] = 'tags';
+        $fields['isAdmin'] = 'isAdmin';
+        unset($fields['state']);
+        $fields['isNormal'] = 'isNormal';
         return $fields;
     }
-
+    
+    public function getIsNormal(){
+        if($this->state === 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
     /**
      * @inheritdoc
      */
-    public function rules() {
+    public function rules()
+    {
         return [
             [['username', 'password'], 'required'],
             [['username', 'password', 'avatar', 'introduction'], 'string'],
             [['reg_time'], 'safe'],
-            [['default_album_id', 'default_follow_group_id'], 'integer'],
+            [['default_album_id', 'default_follow_group_id', 'state'], 'integer'],
             [['default_follow_group_id'], 'exist', 'skipOnError' => true, 'targetClass' => FollowGroup::className(), 'targetAttribute' => ['default_follow_group_id' => 'id']],
             [['default_album_id'], 'exist', 'skipOnError' => true, 'targetClass' => Album::className(), 'targetAttribute' => ['default_album_id' => 'id']],
         ];
     }
-
-    /**
+    
+     /**
      * @inheritdoc
      */
-    public function attributeLabels() {
+    public function attributeLabels()
+    {
         return [
             'id' => 'ID',
             'username' => 'Username',
@@ -85,6 +101,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
             'default_album_id' => 'Default Album ID',
             'default_follow_group_id' => 'Default Follow Group ID',
             'introduction' => 'Introduction',
+            'state' => 'State',
         ];
     }
 
@@ -93,6 +110,15 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface {
      */
     public function getActivities() {
         return $this->hasMany(Activity::className(), ['create_user_id' => 'id']);
+    }
+
+    public function getIsAdmin() {
+        foreach ($this->userRoles as $role) {
+            if ($role->role_name == 'ROLE_ADMIN') {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

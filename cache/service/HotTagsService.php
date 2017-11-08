@@ -47,8 +47,8 @@ class HotTagsService {
      * @param $userId
      */
     public function updateUserTags($oldTags, $tagIds, $userId) {
-        foreach($oldTags as $oldTag){
-            Yii::info($oldTag->id.'   '.$oldTag->name);
+        foreach ($oldTags as $oldTag) {
+            Yii::info($oldTag->id . '   ' . $oldTag->name);
         }
         $containedTags = [];
         foreach ($tagIds as $newTagId) {
@@ -84,7 +84,31 @@ class HotTagsService {
             }
         }
     }
+    public function isUserTag($tagId,$userId){
+        $userTag = UserTag::findOne([
+            'tag_id' => $tagId,
+            'user_id' => $userId
+        ]);
+        return $userTag !== null;
+    }
+    
+    public function saveUserTag($tagId, $userId) {
+        $userTag = new UserTag();
+        $userTag->user_id = $userId;
+        $userTag->tag_id = $tagId;
+        $userTag->save();
+        //用户关注标签会影响标签的热度
+        $this->referTag($tagId);
+    }
 
+    public function deleteUserTag($tagId, $userId) {
+        $deletedUserTag = UserTag::findOne([
+            'tag_id' => $tagId,
+            'user_id' => $userId
+        ]);
+        $deletedUserTag->delete();
+        $this->unReferTag($tagId);
+    }
 
     //**************************************************************************************************
     //以下服务于Moment和Album
