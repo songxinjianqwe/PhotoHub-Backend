@@ -64,6 +64,10 @@ class TagController extends BaseActiveController {
         if ($keyword === null) {
             throw new BadRequestHttpException('keyword can not be null');
         }
+        $tag = Tag::find()->where(['name' => $keyword])->one();
+        if($tag !== null){
+            return '/tags/'.$tag->id;
+        }
         $tag = Tag::find()->where(['like', 'name', $keyword])->one();
         if ($tag === null) {
             throw new NotFoundHttpException('keyword can not match any tags');
